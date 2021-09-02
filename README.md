@@ -9,6 +9,7 @@
   - if this does not work then run pip install pipenv first
 - cd into the backend folder
 - run python manage.py runserver
+- check localhost:8000/api to see if it is running fine
 
 # running the frontend
 - open a terminal
