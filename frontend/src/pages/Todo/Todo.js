@@ -1,35 +1,8 @@
 import React, { Component } from "react";
-import Modal from "./components/Modal";
+import Modal from "../../components/Modal";
 import axios from 'axios';
 
-const todoItems = [
-  {
-    id: 1,
-    title: "Go to Market",
-    description: "Buy ingredients to prepare dinner",
-    completed: true,
-  },
-  {
-    id: 2,
-    title: "Study",
-    description: "Read Algebra and History textbook for the upcoming test",
-    completed: false,
-  },
-  {
-    id: 3,
-    title: "Sammy's books",
-    description: "Go to library to return Sammy's books",
-    completed: true,
-  },
-  {
-    id: 4,
-    title: "Article",
-    description: "Write article on how to use Django with React",
-    completed: false,
-  },
-];
-
-class App extends Component {
+class Todo extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -152,11 +125,12 @@ class App extends Component {
       </li>
     ));
   };
-
+  
   render() {
     return (
-      <main className="container">
-        <h1 className="text-white text-uppercase text-center my-4">Todo app</h1>
+      <div>
+        <main className="container">
+        <h1 className="text-uppercase text-center my-4">Todo app</h1>
         <div className="row">
           <div className="col-md-6 col-sm-10 mx-auto p-0">
             <div className="card p-3">
@@ -183,8 +157,9 @@ class App extends Component {
           />
         ) : null}
       </main>
+      </div>
     );
   }
 }
 
-export default App;
+export default Todo;

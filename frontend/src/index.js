@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
-import App from './App';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+import App from './pages/App/App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
