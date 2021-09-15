@@ -1,13 +1,14 @@
-.Hangar {
-  text-align: center;
-}
-
 .react-grid-item {
   text-align: center;
   background: gray;
 }
-.container {
-  background: lightsteelblue;
-  display: grid;
 
+.hangar {
+  
+}
+
+.layout {
+  text-align: center;
+  background: lightsteelblue;
+  height: 100%;
 }
