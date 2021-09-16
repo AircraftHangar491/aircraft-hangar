@@ -2,48 +2,63 @@ import React, { Component } from "react";
 import "./Hangar.css";
 import RGL, { WidthProvider } from "react-grid-layout";
 import { Button, Form } from 'reactstrap';
+import {
+  Diagram,
+  DiagramComponent,
+  Inject,
+  NodeModel,
+  BpmnShape,
+  BpmnSubProcessModel,
+  BpmnDiagrams,
+  BpmnActivityModel,
+  BpmnFlowModel
+} from "@syncfusion/ej2-react-diagrams";
 import { bottom } from "../../utils";
 
 const ResponsiveGridLayout = WidthProvider(RGL);
 
+// A node is created and stored in nodes array.
+let node = [
+  {
+    // Position of the node
+    offsetX: 250,
+    offsetY: 250,
+    // Size of the node
+    width: 100,
+    height: 200,
+    //Sets type as Bpmn and shape as Event
+    shape: {
+        type: 'Bpmn',
+        shape: 'Gateway',
+        // set the event type as End
+        event: {
+            event: 'End'
+        }
+    },
+  },
+  {
+    // Position of the node
+    offsetX: 100,
+    offsetY: 100,
+    // Size of the node
+    width: 100,
+    height: 200,
+    //Sets type as Bpmn and shape as Event
+    shape: {
+      type: 'Bpmn',
+      shape: 'DataObject',
+      // set the event type as End
+      event: {
+        event: 'End'
+      }
+    },
+  },
+];
+
 class Hangar extends Component {
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      layoutHeight: 0,
-      rowHeight: 150,
-      layout: [
-        {i: 'a', x: 0, y: 0, w: 1, h: 1, static: true},
-        {i: 'b', x: 1, y: 1, w: 1, h: 1, static: false},
-        {i: 'c', x: 4, y: 1, w: 1, h: 1, static: true}
-      ],
-    }
-
-    this.onLayoutChange = this.onLayoutChange.bind(this);
-    this.getContainerHeight = this.getContainerHeight.bind(this);
-  }
-
-  getContainerHeight() {
-
-    const newHeight = bottom(this.state.layout) * (this.state.rowHeight + 20);
-
-    if (newHeight > this.state.layoutHeight) {
-      this.setState({ layoutHeight: newHeight });
-    }
-
-    return `${this.state.layoutHeight}px`;
-  }
-
-  onLayoutChange(layout) {
-    console.log(layout);
-    this.setState({ layout });
-  }
 
   render() {
 
-    console.log(this.getContainerHeight());
     return (
       <div className="container hangar">
         <div className="row">
@@ -51,24 +66,21 @@ class Hangar extends Component {
             <h1>space for form</h1>
           </div>
           <div className="col-sm layout">
-            <ResponsiveGridLayout
-              style={{ height: this.getContainerHeight() }}
-              cols={5}
-              rowHeight={this.state.rowHeight}
-              layouts={this.state.layout}
-              onLayoutChange={this.onLayoutChange}
-              compactType={null}
-              preventCollision={true}
-              isBounded={true}
-              isResizable={false}
+            <DiagramComponent
+              id="diagram"
+              width = {
+                '100%'
+              }
+              height = {
+                '600px'
+              }
+              // Add node
+              nodes = {
+                node
+              }
             >
-              {this.state.layout.map((item) => <div
-                                                key={item.i}
-                                                data-grid={{x: item.x, y: item.y, w: item.w, h: item.h, static: item.static}}
-                                               >
-                                                 {item.i}
-                                               </div>)}    
-            </ResponsiveGridLayout>
+              <Inject services = {[BpmnDiagrams]}/>
+            </DiagramComponent>
           </div>
         </div>
       </div>

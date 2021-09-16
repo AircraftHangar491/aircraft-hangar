@@ -4,6 +4,14 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+/*
+import "@syncfusion/ej2-react-diagrams/styles/material.css";
+import "@syncfusion/ej2-react-base/styles/material.css";
+import "@syncfusion/ej2-react-buttons/styles/material.css";
+import "@syncfusion/ej2-react-popups/styles/material.css";
+import "@syncfusion/ej2-react-splitbuttons/styles/material.css";
+import "@syncfusion/ej2-react-navigations/styles/material.css";
+*/
 import App from './pages/App/App';
 import reportWebVitals from './reportWebVitals';
 
