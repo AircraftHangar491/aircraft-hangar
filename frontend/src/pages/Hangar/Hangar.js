@@ -11,7 +11,8 @@ import {
   BpmnSubProcessModel,
   BpmnDiagrams,
   BpmnActivityModel,
-  BpmnFlowModel
+  BpmnFlowModel,
+  NodeConstraints
 } from "@syncfusion/ej2-react-diagrams";
 import { bottom } from "../../utils";
 
@@ -23,6 +24,8 @@ let node = [
     // Position of the node
     offsetX: 250,
     offsetY: 250,
+    // Constraints can be changed to Rotate or Resize or Drag or Select, etc (https://ej2.syncfusion.com/react/documentation/api/diagram/nodeConstraints/)
+    constraints: NodeConstraints.Default & ~NodeConstraints.Rotate,
     // Size of the node
     width: 100,
     height: 200,
