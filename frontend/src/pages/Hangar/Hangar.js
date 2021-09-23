@@ -71,6 +71,7 @@ class Hangar extends Component {
     super(props);
 
     this.state = {
+      nodes: [],
       // node information
       hangars: [],
       planes: [],
@@ -86,6 +87,7 @@ class Hangar extends Component {
     }
 
     this.onAddAirplane = this.onAddAirplane.bind(this);
+    this.onAddObstructions = this.onAddObstructions.bind(this);
     this.onShowMore = this.onShowMore.bind(this);
     this.onPositionChange = this.onPositionChange.bind(this);
   }
@@ -109,7 +111,8 @@ class Hangar extends Component {
   }
 
   onAddAirplane(e){ 
-    const current = this.state.planeList;
+    const nodes = [...this.state.nodes];
+    const current = [...this.state.planeList];
 
     const x = Math.floor(Math.random() * 101);
     const y = Math.floor(Math.random() * 101);
@@ -131,7 +134,7 @@ class Hangar extends Component {
       style: {
         fill: '#6BA5D7',
         strokeColor: 'white'
-    },
+      },
       //Sets type as Bpmn and shape as Event
       shape: {
         type: 'Bpmn',
@@ -144,13 +147,15 @@ class Hangar extends Component {
     }
 
     this.setState({
+      nodes: nodes.concat(newPlane),
       planes: current.concat(newPlane),
       planeList: current.concat(newPlane),
     });
   }
 
   onAddObstructions(e) {
-    const current = this.state.obstacleList;
+    const nodes = [...this.state.nodes];
+    const current = [...this.state.obstacleList];
 
     const x = Math.floor(Math.random() * 101);
     const y = Math.floor(Math.random() * 101);
@@ -172,7 +177,7 @@ class Hangar extends Component {
       style: {
         fill: '#6BA5D7',
         strokeColor: 'white'
-    },
+      },
       //Sets type as Bpmn and shape as Task
       shape: {
         type: 'Bpmn',
@@ -185,6 +190,7 @@ class Hangar extends Component {
     }
 
     this.setState({
+      nodes: nodes.concat(newObstacle),
       obstacles: current.concat(newObstacle),
       obstacleList: current.concat(newObstacle),
     });
@@ -309,6 +315,7 @@ class Hangar extends Component {
 
   render() {
 
+    console.log(this.state.nodes);
     return (
       <div className="container hangar">
         <div className="row">
@@ -375,7 +382,7 @@ class Hangar extends Component {
               <FormGroup>
                 <Label>
                   <span className="form-title">Obstructions</span>
-                  <Button size="sm">Add</Button>
+                  <Button size="sm" onClick={e => this.onAddObstructions(e)}>Add</Button>
                 </Label>
               </FormGroup>
             </Form>
@@ -391,9 +398,9 @@ class Hangar extends Component {
               }
               // Add node
               nodes = {
-                this.state.obstacles
+                this.state.nodes
               }
-              positionChange={e => this.onPositionChange(e)}
+              //positionChange={e => this.onPositionChange(e)}
               enablePersistence="true"
             >
               <Inject services = {[BpmnDiagrams]}/>
