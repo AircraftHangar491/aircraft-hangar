@@ -108,7 +108,7 @@ class Hangar extends Component {
     });
   }
 
-  onAddAirplane(e) {
+  onAddAirplane(e){ 
     const current = this.state.planeList;
 
     const x = Math.floor(Math.random() * 101);
@@ -146,6 +146,47 @@ class Hangar extends Component {
     this.setState({
       planes: current.concat(newPlane),
       planeList: current.concat(newPlane),
+    });
+  }
+
+  onAddObstructions(e) {
+    const current = this.state.obstacleList;
+
+    const x = Math.floor(Math.random() * 101);
+    const y = Math.floor(Math.random() * 101);
+
+    const newObstacle = {
+      id: `Obstacle ${current.length + 1}`,
+      isOpen: false,
+      // set the node's position to be based on the center
+      pivot: {
+        x: 0.5,
+        y: 0.5,
+      },
+      // Position of the node
+      offsetX: x,
+      offsetY: y,
+      // Size of the node
+      width: 100,
+      height: 100,
+      style: {
+        fill: '#6BA5D7',
+        strokeColor: 'white'
+    },
+      //Sets type as Bpmn and shape as Task
+      shape: {
+        type: 'Bpmn',
+        shape: 'Task',
+        // set the event type as End
+        event: {
+          event: 'End'
+        }
+      },
+    }
+
+    this.setState({
+      obstacles: current.concat(newObstacle),
+      obstacleList: current.concat(newObstacle),
     });
   }
 
@@ -350,7 +391,7 @@ class Hangar extends Component {
               }
               // Add node
               nodes = {
-                this.state.planes
+                this.state.obstacles
               }
               positionChange={e => this.onPositionChange(e)}
               enablePersistence="true"
