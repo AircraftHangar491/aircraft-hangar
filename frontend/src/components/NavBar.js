@@ -13,9 +13,6 @@ export default class CustomNavBar extends Component {
       <Navbar color="light" light expand="md">
         <Nav className="mr-auto" navbar>
           <NavItem>
-            <NavLink href="/">Todo</NavLink>
-          </NavItem>
-          <NavItem>
             <NavLink href="/#/hangar">Hangar</NavLink>
           </NavItem>
         </Nav>
