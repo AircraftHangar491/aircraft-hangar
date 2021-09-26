@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import "./Hangar.css";
-import RGL, { WidthProvider } from "react-grid-layout";
 import {
   Button,
   Collapse,
@@ -9,61 +8,12 @@ import {
   Input,
   Label,
 } from 'reactstrap';
-
 import {
-  Diagram,
   DiagramComponent,
   Inject,
-  NodeModel,
-  BpmnShape,
-  BpmnSubProcessModel,
   BpmnDiagrams,
-  BpmnActivityModel,
-  BpmnFlowModel,
-  NodeConstraints
 } from "@syncfusion/ej2-react-diagrams";
-
-const ResponsiveGridLayout = WidthProvider(RGL);
-
-// A node is created and stored in nodes array.
-let node = [
-  {
-    // Position of the node
-    offsetX: 250,
-    offsetY: 250,
-    // Constraints can be changed to Rotate or Resize or Drag or Select, etc (https://ej2.syncfusion.com/react/documentation/api/diagram/nodeConstraints/)
-    constraints: NodeConstraints.Default & ~NodeConstraints.Rotate,
-    // Size of the node
-    width: 100,
-    height: 200,
-    //Sets type as Bpmn and shape as Event
-    shape: {
-        type: 'Bpmn',
-        shape: 'Gateway',
-        // set the event type as End
-        event: {
-            event: 'End'
-        }
-    },
-  },
-  {
-    // Position of the node
-    offsetX: 100,
-    offsetY: 100,
-    // Size of the node
-    width: 100,
-    height: 100,
-    //Sets type as Bpmn and shape as Event
-    shape: {
-      type: 'Bpmn',
-      shape: 'DataObject',
-      // set the event type as End
-      event: {
-        event: 'End'
-      }
-    },
-  },
-];
+import { getCorners, checkTopLeft, checkTopRight, checkBottomLeft, checkBottomRight } from "./Hangar.utils";
 
 class Hangar extends Component {
 
@@ -196,54 +146,11 @@ class Hangar extends Component {
     });
   }
 
-  getCorners(plane) {
-
-    const planeWidth = plane.width;
-    const planeHeight = plane.height;
-
-    const planeX = plane.offsetX;
-    const planeY = plane.offsetY;
-
-    // get the four corners
-    const top = {
-      x: planeX,
-      y: (planeY - (planeHeight / 2))
-    };
-
-    const bottom = {
-      x: planeX,
-      y: (planeY + (planeHeight / 2))
-    };
-
-    const left = {
-      x: (planeX - (planeWidth / 2)),
-      y: planeY
-    };
-
-    const right = {
-      x: (planeX + (planeWidth / 2)),
-      y: planeY
-    };
-
-    return { top, bottom, left, right }
-  }
-
   checkOverlap(changedPlane) {
     const currentPlanes = [...this.state.planes];
 
-    // get height and width
-    const changedPlaneHeight = changedPlane.height;
-    const changedPlaneWidth = changedPlane.width;
-
-    // get x and y
-    const changedPlaneX = changedPlane.offsetX;
-    const changedPlaneY = changedPlane.offsetY;
-
     // get corners
-    const changedPlaneCorners = this.getCorners(changedPlane);
-
-    //console.log('changed');
-    //console.log(changedPlaneCorners);
+    const changedPlaneCorners = getCorners(changedPlane);
 
     for (const index in currentPlanes) {
       // skip if current[index] is the same as the plane we just moved
@@ -257,19 +164,16 @@ class Hangar extends Component {
       // from offset x and y, find the points in the grid that the changed plane is occupying
       // check if current[index] is on there
 
-      const planeCorners = this.getCorners(currentPlanes[index]);
-
-      //console.log("planes")
-      //console.log(planeCorners);
-      // check if top corner is touching
+      const planeCorners = getCorners(currentPlanes[index]);
+        
       if (
-        (changedPlaneCorners.top.y < planeCorners.bottom.y) &&
-        (changedPlaneCorners.top.y > planeCorners.top.y) &&
-        (changedPlaneCorners.top.x < planeCorners.right.x) &&
-        (changedPlaneCorners.top.x > planeCorners.left.x)) {
-        console.log("TOUCHING!!");
+        checkTopLeft(changedPlaneCorners, planeCorners) ||
+        checkTopRight(changedPlaneCorners, planeCorners) ||
+        checkBottomLeft(changedPlaneCorners, planeCorners) ||
+        checkBottomRight(changedPlaneCorners, planeCorners)
+      ) {
+        console.log("Touching!");
       }
-
       // check if bottom corner is touching
 
       // check if left corner is touching
@@ -315,7 +219,6 @@ class Hangar extends Component {
 
   render() {
 
-    console.log(this.state.nodes);
     return (
       <div className="container hangar">
         <div className="row">
@@ -400,7 +303,7 @@ class Hangar extends Component {
               nodes = {
                 this.state.nodes
               }
-              //positionChange={e => this.onPositionChange(e)}
+              positionChange={e => this.onPositionChange(e)}
               enablePersistence="true"
             >
               <Inject services = {[BpmnDiagrams]}/>
