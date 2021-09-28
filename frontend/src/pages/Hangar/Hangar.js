@@ -13,6 +13,7 @@ import {
   Inject,
   BpmnDiagrams,
 } from "@syncfusion/ej2-react-diagrams";
+import CustomNavBar from "../../components/NavBar";
 import { getCorners, checkTopLeft, checkTopRight, checkBottomLeft, checkBottomRight } from "./Hangar.utils";
 
 class Hangar extends Component {
@@ -36,6 +37,7 @@ class Hangar extends Component {
       obstaclesIsOpen: false,
     }
 
+    this.onAddHangar = this.onAddHangar.bind(this);
     this.onAddAirplane = this.onAddAirplane.bind(this);
     this.onAddObstructions = this.onAddObstructions.bind(this);
     this.onShowMore = this.onShowMore.bind(this);
@@ -54,10 +56,8 @@ class Hangar extends Component {
     this.setState({ planeList: list });
   }
 
-  onAddHangar() {
-    this.setState(state => {
-      return state.hangars.concat()
-    });
+  onAddHangar(e) {
+    console.log(e);
   }
 
   onAddAirplane(e){ 
@@ -220,94 +220,96 @@ class Hangar extends Component {
   render() {
 
     return (
-      <div className="container hangar">
-        <div className="row">
-          <div className="col-sm">
-            <h1>space for form</h1>
-            <Form>
-              <FormGroup>
-                <Label>
-                  <span className="form-title">Hangars</span>
-                  <Button size="sm">Add</Button>
-                </Label>
-                
-              </FormGroup>
-              <FormGroup>
-                <Label>
-                  <span className="form-title">Airplanes</span>
-                  <Button size="sm" onClick={(e) => this.onAddAirplane(e)}>Add</Button>
-                </Label>
-                {this.state.planeList.map((plane) => {
-                    return (
-                      <div key={plane.id}>
-                        <Button id={plane.id} onClick={e => this.onShowMore(plane.id, e)}>{plane.id}</Button>
-                        <Collapse isOpen={plane.isOpen}>
-                          <Label>Name</Label>
-                          <Input
-                            type="name"
-                            name="id"
-                            id="id"
-                            placeholder={plane.id}
-                          />
-                          <Label>Position X</Label>
-                          <Input
-                            type="number"
-                            name="positionX"
-                            id="positionX"
-                            placeholder={plane.offsetX}
-                          />
-                          <Label>Position Y</Label>
-                          <Input
-                            type="number"
-                            name="positionY"
-                            id="positionY"
-                            placeholder={plane.offsetY}
-                          />
-                          <Label>Width</Label>
-                          <Input
-                            type="number"
-                            name="width"
-                            id="width"
-                            placeholder={plane.width}
-                          />
-                          <Label>Height</Label>
-                          <Input
-                            type="number"
-                            name="height"
-                            id="height"
-                            placeholder={plane.height}
-                          />
-                        </Collapse>
-                      </div>
-                    );
-                  })}
-              </FormGroup>
-              <FormGroup>
-                <Label>
-                  <span className="form-title">Obstructions</span>
-                  <Button size="sm" onClick={e => this.onAddObstructions(e)}>Add</Button>
-                </Label>
-              </FormGroup>
-            </Form>
-          </div>
-          <div className="col-sm layout">
-            <DiagramComponent
-              id="diagram"
-              width = {
-                '100%'
-              }
-              height = {
-                '700px'
-              }
-              // Add node
-              nodes = {
-                this.state.nodes
-              }
-              positionChange={e => this.onPositionChange(e)}
-              enablePersistence="true"
-            >
-              <Inject services = {[BpmnDiagrams]}/>
-            </DiagramComponent>
+      <div>
+        <CustomNavBar/>
+        <div className="container hangar">
+          <div className="row">
+            <div className="col-sm">
+              <h1>space for form</h1>
+              <Form>
+                <FormGroup>
+                  <Label>
+                    <span className="form-title">Hangars</span>
+                    <Button size="sm" onClick={e => this.onAddHangar(e)}>Add</Button>
+                  </Label>
+                </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <span className="form-title">Airplanes</span>
+                    <Button size="sm" onClick={(e) => this.onAddAirplane(e)}>Add</Button>
+                  </Label>
+                  {this.state.planeList.map((plane) => {
+                      return (
+                        <div key={plane.id}>
+                          <Button id={plane.id} onClick={e => this.onShowMore(plane.id, e)}>{plane.id}</Button>
+                          <Collapse isOpen={plane.isOpen}>
+                            <Label>Name</Label>
+                            <Input
+                              type="name"
+                              name="id"
+                              id="id"
+                              placeholder={plane.id}
+                            />
+                            <Label>Position X</Label>
+                            <Input
+                              type="number"
+                              name="positionX"
+                              id="positionX"
+                              placeholder={plane.offsetX}
+                            />
+                            <Label>Position Y</Label>
+                            <Input
+                              type="number"
+                              name="positionY"
+                              id="positionY"
+                              placeholder={plane.offsetY}
+                            />
+                            <Label>Width</Label>
+                            <Input
+                              type="number"
+                              name="width"
+                              id="width"
+                              placeholder={plane.width}
+                            />
+                            <Label>Height</Label>
+                            <Input
+                              type="number"
+                              name="height"
+                              id="height"
+                              placeholder={plane.height}
+                            />
+                          </Collapse>
+                        </div>
+                      );
+                    })}
+                </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <span className="form-title">Obstructions</span>
+                    <Button size="sm" onClick={e => this.onAddObstructions(e)}>Add</Button>
+                  </Label>
+                </FormGroup>
+              </Form>
+            </div>
+            <div className="col-sm layout">
+              <DiagramComponent
+                id="diagram"
+                width = {
+                  '100%'
+                }
+                height = {
+                  '700px'
+                }
+                // Add node
+                nodes = {
+                  this.state.planes
+                }
+                positionChange={e => this.onPositionChange(e)}
+                enablePersistence="true"
+              >
+                <Inject services = {[BpmnDiagrams]}/>
+              </DiagramComponent>
+            </div>
           </div>
         </div>
       </div>

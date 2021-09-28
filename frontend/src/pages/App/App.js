@@ -9,9 +9,8 @@ class App extends Component {
     return (
       <Router>
         <div>
-          <CustomNavBar/>
             <Switch>
-              <Route exact path="/hangar" component={Hangar}/>
+              <Route exact path="/" component={Hangar}/>
             </Switch>
         </div>
       </Router>
