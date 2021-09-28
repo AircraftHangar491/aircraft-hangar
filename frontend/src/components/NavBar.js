@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {
   Nav,
   Navbar,
@@ -6,19 +6,16 @@ import {
   NavLink,
 } from 'reactstrap';
 
-const CustomNavBar = () => {
-  return (
-    <Navbar color="light" light expand="md">
-      <Nav className="mr-auto" navbar>
-        <NavItem>
-          <NavLink href="/">Add Entities</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink href="/layout">Layout</NavLink>
-        </NavItem>
-      </Nav>
-    </Navbar>    
-  );
+export default class CustomNavBar extends Component {
+  render() {
+    return (
+      <Navbar color="light" light expand="md">
+        <Nav className="mr-auto" navbar>
+          <NavItem>
+            <NavLink href="/#/">Hangar</NavLink>
+          </NavItem>
+        </Nav>
+      </Navbar>    
+    );
+  }
 }
-
-export default CustomNavBar;
