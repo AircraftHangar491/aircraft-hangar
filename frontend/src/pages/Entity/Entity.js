@@ -12,7 +12,7 @@ import {
   Label,
 } from 'reactstrap';
 import CustomNavBar from '../../components/NavBar';
-import { c17, f22, kc135 } from "../../utils/planeInfo";
+import { planeInfo, updatePlaneInfo } from "../../utils/planeInfo";
 
 const Entity = (
   {
@@ -54,23 +54,34 @@ const Entity = (
 
   useEffect(() => {
     if (planeType) {
-      let newPlane;
 
+      let type;
       if (planeType === "c17") {
-        newPlane = c17(`C-17 ${planeCount.c17}`);
+        type = "C-17";
       }
   
       if (planeType === "kc135") {
-        newPlane = kc135(`KC-135 ${planeCount.kc135}`)
+        type = "KC-135"
       }
   
       if (planeType === "f22") {
-        newPlane = f22(`F-22 ${planeCount.f22}`)
+        type = "F-22"
       }
 
+      const newPlane = planeInfo(`${type} ${planeCount[planeType]}`, type);
+
       setPlanes([...planes, newPlane]);
+      setPlaneType('');
     }
-  }, [planeCount, planeType]);
+  }, [planeCount]);
+
+  const onPlaneTypeSelect = (e, id) => {
+    const selected = e.target.value;
+
+    const updatedList = updatePlaneInfo(id, selected);
+
+    setPlanes(updatedList);
+  }
   
   return (
     <div>
@@ -104,37 +115,21 @@ const Entity = (
                     <Input
                       type="name"
                       name="name"
-                      id="name"
+                      id="planeName"
                       placeholder={plane.name}
                     />
-                    <Label>Position X</Label>
+                    <Label>Aircraft Type</Label>
                     <Input
-                      type="number"
-                      name="positionX"
-                      id="positionX"
-                      placeholder={plane.offsetX}
-                    />
-                    <Label>Position Y</Label>
-                    <Input
-                      type="number"
-                      name="positionY"
-                      id="positionY"
-                      placeholder={plane.offsetY}
-                    />
-                    <Label>Width</Label>
-                    <Input
-                      type="number"
-                      name="width"
-                      id="width"
-                      placeholder={plane.width}
-                    />
-                    <Label>Height</Label>
-                    <Input
-                      type="number"
-                      name="height"
-                      id="height"
-                      placeholder={plane.height}
-                    />
+                      type="select"
+                      name="select"
+                      id="planeType"
+                      value={plane.type}
+                      onChange={e => onPlaneTypeSelect(e, plane.id)}
+                    >
+                      <option>C-17</option>
+                      <option>KC-135</option>
+                      <option>F-22</option>
+                    </Input>
                   </Collapse>
                 </div>
               );
