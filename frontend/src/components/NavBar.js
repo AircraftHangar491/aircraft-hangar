@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import {
   Nav,
   Navbar,
@@ -6,25 +6,19 @@ import {
   NavLink,
 } from 'reactstrap';
 
-export default class CustomNavBar extends Component {
-
-  constructor(props) {
-    super(props);
-
-    console.log(props)
-  }
-
-  render() {
-
-    console.log(this.props);
-    return (
-      <Navbar color="light" light expand="md">
-        <Nav className="mr-auto" navbar>
-          <NavItem>
-            <NavLink href="/#/">Hangar</NavLink>
-          </NavItem>
-        </Nav>
-      </Navbar>    
-    );
-  }
+const CustomNavBar = () => {
+  return (
+    <Navbar color="light" light expand="md">
+      <Nav className="mr-auto" navbar>
+        <NavItem>
+          <NavLink href="/">Add Entities</NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink href="/layout">Layout</NavLink>
+        </NavItem>
+      </Nav>
+    </Navbar>    
+  );
 }
+
+export default CustomNavBar;

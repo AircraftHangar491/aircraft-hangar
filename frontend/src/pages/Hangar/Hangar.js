@@ -1,14 +1,6 @@
 import React, { Component } from "react";
 import "./Hangar.css";
 import {
-  Button,
-  Collapse,
-  Form,
-  FormGroup,
-  Input,
-  Label,
-} from 'reactstrap';
-import {
   DiagramComponent,
   Inject,
   BpmnDiagrams,
@@ -22,128 +14,27 @@ class Hangar extends Component {
     super(props);
 
     this.state = {
+      //list of both planes and obstacles
       nodes: [],
       // node information
       hangars: [],
       planes: [],
       obstacles: [],
-      // form information
-      hangarList: [],
-      planeList: [],
-      obstacleList: [],
+      // organized plane list information
+      planeList: {
+        c17: [],
+        kc135: [],
+        f22: [],
+      },
       // form buttons,
+      addPlanesIsOpen: false,
       hangarIsOpen: false,
       planeIsOpen: false,
       obstaclesIsOpen: false,
     }
 
-    this.onAddHangar = this.onAddHangar.bind(this);
-    this.onAddAirplane = this.onAddAirplane.bind(this);
-    this.onAddObstructions = this.onAddObstructions.bind(this);
-    this.onShowMore = this.onShowMore.bind(this);
+    // event functions
     this.onPositionChange = this.onPositionChange.bind(this);
-  }
-
-  onShowMore(id, e) {
-    const list = [...this.state.planeList];
-    
-    const current = {...list.find(plane => plane.id === id)};
-    current.isOpen = !current.isOpen;
-
-    const index = list.findIndex(plane => plane.id === id);
-    list[index] = current;
-
-    this.setState({ planeList: list });
-  }
-
-  onAddHangar(e) {
-    console.log(e);
-  }
-
-  onAddAirplane(e){ 
-    const nodes = [...this.state.nodes];
-    const current = [...this.state.planeList];
-
-    const x = Math.floor(Math.random() * 101);
-    const y = Math.floor(Math.random() * 101);
-
-    const newPlane = {
-      id: `Airplane ${current.length + 1}`,
-      isOpen: false,
-      // set the node's position to be based on the center
-      pivot: {
-        x: 0.5,
-        y: 0.5,
-      },
-      // Position of the node
-      offsetX: x,
-      offsetY: y,
-      // Size of the node
-      width: 100,
-      height: 100,
-      style: {
-        fill: '#6BA5D7',
-        strokeColor: 'white'
-      },
-      //Sets type as Bpmn and shape as Event
-      shape: {
-        type: 'Bpmn',
-        shape: 'Gateway',
-        // set the event type as End
-        event: {
-          event: 'End'
-        }
-      },
-    }
-
-    this.setState({
-      nodes: nodes.concat(newPlane),
-      planes: current.concat(newPlane),
-      planeList: current.concat(newPlane),
-    });
-  }
-
-  onAddObstructions(e) {
-    const nodes = [...this.state.nodes];
-    const current = [...this.state.obstacleList];
-
-    const x = Math.floor(Math.random() * 101);
-    const y = Math.floor(Math.random() * 101);
-
-    const newObstacle = {
-      id: `Obstacle ${current.length + 1}`,
-      isOpen: false,
-      // set the node's position to be based on the center
-      pivot: {
-        x: 0.5,
-        y: 0.5,
-      },
-      // Position of the node
-      offsetX: x,
-      offsetY: y,
-      // Size of the node
-      width: 100,
-      height: 100,
-      style: {
-        fill: '#6BA5D7',
-        strokeColor: 'white'
-      },
-      //Sets type as Bpmn and shape as Task
-      shape: {
-        type: 'Bpmn',
-        shape: 'Task',
-        // set the event type as End
-        event: {
-          event: 'End'
-        }
-      },
-    }
-
-    this.setState({
-      nodes: nodes.concat(newObstacle),
-      obstacles: current.concat(newObstacle),
-      obstacleList: current.concat(newObstacle),
-    });
   }
 
   checkOverlap(changedPlane) {
@@ -225,80 +116,16 @@ class Hangar extends Component {
         <div className="container hangar">
           <div className="row">
             <div className="col-sm">
-              <h1>space for form</h1>
-              <Form>
-                <FormGroup>
-                  <Label>
-                    <span className="form-title">Hangars</span>
-                    <Button size="sm" onClick={e => this.onAddHangar(e)}>Add</Button>
-                  </Label>
-                </FormGroup>
-                <FormGroup>
-                  <Label>
-                    <span className="form-title">Airplanes</span>
-                    <Button size="sm" onClick={(e) => this.onAddAirplane(e)}>Add</Button>
-                  </Label>
-                  {this.state.planeList.map((plane) => {
-                      return (
-                        <div key={plane.id}>
-                          <Button id={plane.id} onClick={e => this.onShowMore(plane.id, e)}>{plane.id}</Button>
-                          <Collapse isOpen={plane.isOpen}>
-                            <Label>Name</Label>
-                            <Input
-                              type="name"
-                              name="id"
-                              id="id"
-                              placeholder={plane.id}
-                            />
-                            <Label>Position X</Label>
-                            <Input
-                              type="number"
-                              name="positionX"
-                              id="positionX"
-                              placeholder={plane.offsetX}
-                            />
-                            <Label>Position Y</Label>
-                            <Input
-                              type="number"
-                              name="positionY"
-                              id="positionY"
-                              placeholder={plane.offsetY}
-                            />
-                            <Label>Width</Label>
-                            <Input
-                              type="number"
-                              name="width"
-                              id="width"
-                              placeholder={plane.width}
-                            />
-                            <Label>Height</Label>
-                            <Input
-                              type="number"
-                              name="height"
-                              id="height"
-                              placeholder={plane.height}
-                            />
-                          </Collapse>
-                        </div>
-                      );
-                    })}
-                </FormGroup>
-                <FormGroup>
-                  <Label>
-                    <span className="form-title">Obstructions</span>
-                    <Button size="sm" onClick={e => this.onAddObstructions(e)}>Add</Button>
-                  </Label>
-                </FormGroup>
-              </Form>
+              <h1>space for entity bank</h1>
             </div>
             <div className="col-sm layout">
               <DiagramComponent
                 id="diagram"
                 width = {
-                  '100%'
+                  '720px'
                 }
                 height = {
-                  '700px'
+                  '820px'
                 }
                 // Add node
                 nodes = {
