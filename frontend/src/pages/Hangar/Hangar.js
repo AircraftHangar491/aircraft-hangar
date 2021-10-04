@@ -53,7 +53,7 @@ class Hangar extends Component {
   }
 
   onShowMore(id, e) {
-    const list = [...this.state.planeList];
+    const list = [...this.state.planes];
     
     const current = {...list.find(plane => plane.id === id)};
     current.isOpen = !current.isOpen;
@@ -61,7 +61,7 @@ class Hangar extends Component {
     const index = list.findIndex(plane => plane.id === id);
     list[index] = current;
 
-    this.setState({ planeList: list });
+    this.setState({ planes: list });
   }
 
   onAddHangar(e) {
@@ -70,7 +70,7 @@ class Hangar extends Component {
 
   onAddAirplane(e){ 
     const nodes = [...this.state.nodes];
-    const current = [...this.state.planeList];
+    const current = [...this.state.planes];
 
     const x = Math.floor(Math.random() * 101);
     const y = Math.floor(Math.random() * 101);
@@ -107,13 +107,12 @@ class Hangar extends Component {
     this.setState({
       nodes: nodes.concat(newPlane),
       planes: current.concat(newPlane),
-      planeList: current.concat(newPlane),
     });
   }
 
   onAddObstructions(e) {
     const nodes = [...this.state.nodes];
-    const current = [...this.state.obstacleList];
+    const current = [...this.state.obstacles];
 
     const x = Math.floor(Math.random() * 101);
     const y = Math.floor(Math.random() * 101);
@@ -150,7 +149,6 @@ class Hangar extends Component {
     this.setState({
       nodes: nodes.concat(newObstacle),
       obstacles: current.concat(newObstacle),
-      obstacleList: current.concat(newObstacle),
     });
   }
 
@@ -246,7 +244,7 @@ class Hangar extends Component {
                     <span className="form-title">Airplanes</span>
                     <Button size="sm" onClick={(e) => this.onAddAirplane(e)}>Add</Button>
                   </Label>
-                  {this.state.planeList.map((plane) => {
+                  {this.state.nodes.map((plane) => {
                       return (
                         <div key={plane.id}>
                           <Button id={plane.id} onClick={e => this.onShowMore(plane.id, e)}>{plane.id}</Button>
