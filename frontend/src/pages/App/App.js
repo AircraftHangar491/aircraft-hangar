@@ -29,8 +29,18 @@ const App = () => {
               }}
               exact path="/"
             />
-          <Route exact path="/layout" component={Hangar}/>
-
+          <Route
+            render={(props) => {
+              return (
+                <Hangar
+                  {...props}
+                  planes={planes}
+                  setPlanes={setPlanes}
+                />
+              )
+            }}
+            exact path="/layout" 
+          />
         </Switch>
       </div>
     </Router>

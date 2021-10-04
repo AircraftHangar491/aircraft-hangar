@@ -1,29 +1,29 @@
 import { v4 as uuidv4 } from 'uuid';
 
 export const getPlaneWidth = (type) => {
-  if (type === "c17") {
+  if (type === "C-17") {
     return 517.5
   }
 
-  if (type === "kc135") {
+  if (type === "KC-135") {
     return 398.8
   }
 
-  if (type === "f22") {
+  if (type === "F-22") {
     return 136
   }
 }
 
 export const getPlaneHeight = (type) => {
-  if (type === "c17") {
+  if (type === "C-17") {
     return 530
   }
 
-  if (type === "kc135") {
+  if (type === "KC-135") {
     return 415.3
   }
 
-  if (type === "f22") {
+  if (type === "F-22") {
     return 189
   }
 }

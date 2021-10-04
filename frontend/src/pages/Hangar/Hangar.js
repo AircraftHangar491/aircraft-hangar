@@ -8,8 +8,13 @@ import {
 import CustomNavBar from "../../components/NavBar";
 import { getCorners, checkTopLeft, checkTopRight, checkBottomLeft, checkBottomRight } from "./Hangar.utils";
 
-class Hangar extends Component {
+const Hangar = (
+  {
+    planes,
+    setPlanes,
+  }) => {
 
+  /*
   constructor(props) {
     super(props);
 
@@ -36,9 +41,10 @@ class Hangar extends Component {
     // event functions
     this.onPositionChange = this.onPositionChange.bind(this);
   }
+  */
 
-  checkOverlap(changedPlane) {
-    const currentPlanes = [...this.state.planes];
+  const checkOverlap = (changedPlane) => {
+    const currentPlanes = [...planes];
 
     // get corners
     const changedPlaneCorners = getCorners(changedPlane);
@@ -73,10 +79,10 @@ class Hangar extends Component {
     }
   }
 
-  onPositionChange(e) {
+  const onPositionChange = (e) => {
     if (e.state === 'Completed') {
       // update the plane position x and y
-      const current = [...this.state.planes];
+      const current = [...planes];
       const plane = current.find( ({ id }) => {
         const propName = e.source.propName;
 
@@ -95,53 +101,50 @@ class Hangar extends Component {
         return undefined;
       });
 
+      
       plane.offsetX = e.newValue.offsetX;
       plane.offsetY = e.newValue.offsetY;
 
       const index = current.findIndex(e => e.id === plane.id);
       current[index] = plane;
-      this.setState({ planes: current });
+      setPlanes(current);
 
       // check for any overlap
-      this.checkOverlap(plane);
+      checkOverlap(plane);
     }
   }
   
-
-  render() {
-
-    return (
-      <div>
-        <CustomNavBar/>
-        <div className="container hangar">
-          <div className="row">
-            <div className="col-sm">
-              <h1>space for entity bank</h1>
-            </div>
-            <div className="col-sm layout">
-              <DiagramComponent
-                id="diagram"
-                width = {
-                  '720px'
-                }
-                height = {
-                  '820px'
-                }
-                // Add node
-                nodes = {
-                  this.state.planes
-                }
-                positionChange={e => this.onPositionChange(e)}
-                enablePersistence="true"
-              >
-                <Inject services = {[BpmnDiagrams]}/>
-              </DiagramComponent>
-            </div>
+  return (
+    <div>
+      <CustomNavBar/>
+      <div className="container hangar">
+        <div className="row">
+          <div className="col-sm">
+            <h1>space for entity bank</h1>
+          </div>
+          <div className="col-sm layout">
+            <DiagramComponent
+              id="diagram"
+              width = {
+                '720px'
+              }
+              height = {
+                '820px'
+              }
+              // Add node
+              nodes = {
+                planes
+              }
+              positionChange={onPositionChange}
+              enablePersistence="true"
+            >
+              <Inject services = {[BpmnDiagrams]}/>
+            </DiagramComponent>
           </div>
         </div>
       </div>
-    );  
-  }
+    </div>
+  );  
 }
 
 export default Hangar;

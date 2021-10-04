@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import "./Entity.css"
 import {
   Button,
   ButtonDropdown,
@@ -108,7 +109,7 @@ const Entity = (
           </Label>
           {planes.map((plane) => {
               return (
-                <div key={plane.id}>
+                <div className="plane-list" key={plane.id}>
                   <Button id={plane.id} onClick={e => onShowMore(plane.id, e)}>{plane.name}</Button>
                   <Collapse isOpen={plane.isOpen}>
                     <Label>Name</Label>
