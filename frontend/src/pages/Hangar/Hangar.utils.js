@@ -156,12 +156,14 @@ export function hangarAlgorithm(planes, hangar) {
 
   const bigPlane = planeList.find(plane => plane.type === "C-17");
   
-  bigPlane.offsetX = midX;
-  bigPlane.offsetY = midY;
+  if (bigPlane) {
+    bigPlane.offsetX = midX;
+    bigPlane.offsetY = midY;
 
-  const index = planeList.findIndex(plane => plane.id === bigPlane.id);
-  planeList[index] = bigPlane;
+    const index = planeList.findIndex(plane => plane.id === bigPlane.id);
+    planeList[index] = bigPlane;
+  }
 
-  return { planeList, updated: planeList[index] };
+  return planeList;
 }
 

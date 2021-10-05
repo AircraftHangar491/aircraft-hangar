@@ -84,7 +84,7 @@ const Hangar = (
   const onRender = (e, hangar) => {
     console.log(e);
     
-    const { planeList, updated } = hangarAlgorithm(planes, hangar);
+    const planeList = hangarAlgorithm(planes, hangar);
     setPlanes(planeList);
 
     console.log(diagramInstance);
@@ -130,7 +130,7 @@ const Hangar = (
                     nodeModel.shape = data.shape;
                   }
                 }}
-                //positionChange={onPositionChange}
+                positionChange={onPositionChange}
                 //enablePersistence="true"
               >
                 <Inject services = {[BpmnDiagrams, DataBinding]}/>
