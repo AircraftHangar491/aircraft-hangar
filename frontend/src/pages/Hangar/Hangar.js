@@ -77,7 +77,7 @@ const Hangar = (
       setPlanes(current);
 
       // check for any overlap
-      checkOverlap(plane);
+      // checkOverlap(plane);
     }
   }
 
@@ -128,6 +128,10 @@ const Hangar = (
                     nodeModel.pivot = data.pivot;
                     nodeModel.style = data.style;
                     nodeModel.shape = data.shape;
+
+                    console.log(nodeModel);
+                    console.log(data);
+                    console.log(diagram);
                   }
                 }}
                 positionChange={onPositionChange}
