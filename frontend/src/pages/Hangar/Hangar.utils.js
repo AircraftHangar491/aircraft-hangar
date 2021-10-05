@@ -138,3 +138,30 @@ export function checkBottomRight(a, b) {
 
   return false;
 }
+
+/*
+  Two types of placement
+  1) Fit the biggest plane, either C-17 or KC-135, in the center then fit F-22's around the big plane.
+  2) Do not fit a big plane and only fit F-22's.
+*/
+export function hangarAlgorithm(planes, hangar) {
+  console.log(planes);
+
+  // copy planes
+  const planeList = [...planes];
+
+  // find the mid point of the hangar
+  const midX = hangar.width / 2;
+  const midY = hangar.height / 2;
+
+  const bigPlane = planeList.find(plane => plane.type === "C-17");
+  
+  bigPlane.offsetX = midX;
+  bigPlane.offsetY = midY;
+
+  const index = planeList.findIndex(plane => plane.id === bigPlane.id);
+  planeList[index] = bigPlane;
+
+  return { planeList, updated: planeList[index] };
+}
+

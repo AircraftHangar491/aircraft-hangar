@@ -1,47 +1,25 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import "./Hangar.css";
 import {
   DiagramComponent,
+  DataBinding,
   Inject,
   BpmnDiagrams,
 } from "@syncfusion/ej2-react-diagrams";
+import {
+  DataManager,
+} from '@syncfusion/ej2-data';
+import { Button } from "reactstrap";
 import CustomNavBar from "../../components/NavBar";
-import { getCorners, checkTopLeft, checkTopRight, checkBottomLeft, checkBottomRight } from "./Hangar.utils";
+import { getCorners, checkTopLeft, checkTopRight, checkBottomLeft, checkBottomRight, hangarAlgorithm } from "./Hangar.utils";
+
+let diagramInstance;
 
 const Hangar = (
   {
     planes,
     setPlanes,
   }) => {
-
-  /*
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      //list of both planes and obstacles
-      nodes: [],
-      // node information
-      hangars: [],
-      planes: [],
-      obstacles: [],
-      // organized plane list information
-      planeList: {
-        c17: [],
-        kc135: [],
-        f22: [],
-      },
-      // form buttons,
-      addPlanesIsOpen: false,
-      hangarIsOpen: false,
-      planeIsOpen: false,
-      obstaclesIsOpen: false,
-    }
-
-    // event functions
-    this.onPositionChange = this.onPositionChange.bind(this);
-  }
-  */
 
   const checkOverlap = (changedPlane) => {
     const currentPlanes = [...planes];
@@ -55,12 +33,6 @@ const Hangar = (
         continue;
       }
 
-      // get offset x and y
-      // get width and height
-
-      // from offset x and y, find the points in the grid that the changed plane is occupying
-      // check if current[index] is on there
-
       const planeCorners = getCorners(currentPlanes[index]);
         
       if (
@@ -71,11 +43,6 @@ const Hangar = (
       ) {
         console.log("Touching!");
       }
-      // check if bottom corner is touching
-
-      // check if left corner is touching
-
-      // check if right corner is touching
     }
   }
 
@@ -113,6 +80,16 @@ const Hangar = (
       checkOverlap(plane);
     }
   }
+
+  const onRender = (e, hangar) => {
+    console.log(e);
+    
+    const { planeList, updated } = hangarAlgorithm(planes, hangar);
+    setPlanes(planeList);
+
+    console.log(diagramInstance);
+    //diagramInstance.updateNode(updated.id, { offsetX: updated.offsetX, offsetY: updated.offsetY });
+  }
   
   return (
     <div>
@@ -123,23 +100,45 @@ const Hangar = (
             <h1>space for entity bank</h1>
           </div>
           <div className="col-sm layout">
-            <DiagramComponent
-              id="diagram"
-              width = {
-                '720px'
-              }
-              height = {
-                '820px'
-              }
-              // Add node
-              nodes = {
-                planes
-              }
-              positionChange={onPositionChange}
-              enablePersistence="true"
-            >
-              <Inject services = {[BpmnDiagrams]}/>
-            </DiagramComponent>
+            <div>
+              <DiagramComponent
+                id="diagram"
+                ref={diagram => (diagramInstance = diagram)}
+                width = {
+                  '720px'
+                }
+                height = {
+                  '820px'
+                }
+                /*
+                // Add node
+                nodes = {
+                  planes
+                }
+                */
+                dataSourceSettings={{
+                  id: "id",
+                  dataManager: new DataManager(planes),
+                  doBinding: (nodeModel, data, diagram) => {
+                    nodeModel.id = data.id;
+                    nodeModel.height = data.height;
+                    nodeModel.width = data.width;
+                    nodeModel.offsetX = data.offsetX;
+                    nodeModel.offsetY = data.offsetY;
+                    nodeModel.pivot = data.pivot;
+                    nodeModel.style = data.style;
+                    nodeModel.shape = data.shape;
+                  }
+                }}
+                //positionChange={onPositionChange}
+                //enablePersistence="true"
+              >
+                <Inject services = {[BpmnDiagrams, DataBinding]}/>
+              </DiagramComponent>
+            </div>
+            <div>
+              <Button onClick={e => onRender(e, {width: 720, height: 820})}>Render</Button>
+            </div>
           </div>
         </div>
       </div>
