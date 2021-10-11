@@ -1,34 +1,35 @@
 import { v4 as uuidv4 } from 'uuid';
 
-export const getPlaneWidth = (type) => {
+export const size = (type) => {
   if (type === "C-17") {
-    return 517.5
+    return { width: 517.5, height: 530 }
   }
 
   if (type === "KC-135") {
-    return 398.8
+    return { width: 398.8, height: 415.3 }
   }
 
   if (type === "F-22") {
-    return 136
+    return { width: 136, height: 189 }
   }
 }
 
-export const getPlaneHeight = (type) => {
+export const color = (type) => {
   if (type === "C-17") {
-    return 530
+    return "#6BA5D7"
   }
 
   if (type === "KC-135") {
-    return 415.3
+    return  "#389876"
   }
 
   if (type === "F-22") {
-    return 189
+    return "#D04061"
   }
 }
 
 export const planeInfo = (name, type) => {
+
   return (
     {
       id: uuidv4(),
@@ -44,10 +45,10 @@ export const planeInfo = (name, type) => {
       offsetX: Math.floor(Math.random() * 101),
       offsetY: Math.floor(Math.random() * 101),
       // Size of the node
-      width: getPlaneWidth(type),
-      height: getPlaneHeight(type),
+      width: size(type).width,
+      height: size(type).height,
       style: {
-        fill: '#6BA5D7',
+        fill: color(type),
         strokeColor: 'white'
       },
       //Sets type as Bpmn and shape as Event
@@ -59,11 +60,14 @@ export const planeInfo = (name, type) => {
           event: 'End'
         }
       },
+      annotations: [{
+        content: name
+      }],
     }
   );
 }
 
-export const updatePlaneInfo = (id, type) => {
+export const updatePlaneInfo = (id, type, name) => {
   // get the array of plane objects
   const planeList = JSON.parse(window.localStorage.getItem('planes'));
 
@@ -76,9 +80,17 @@ export const updatePlaneInfo = (id, type) => {
   // update the appropriate fields
   const updatedPlane = {
     ...plane,
+    name: name,
     type: type,
-    width: getPlaneWidth(type),
-    height: getPlaneHeight(type),
+    width: size(type).width,
+    height: size(type).height,
+    style: {
+      ...plane.style,
+      fill: color(type)
+    },
+    annotations: [{
+      content: name
+    }]
   }
 
   // update the list with the new plane
