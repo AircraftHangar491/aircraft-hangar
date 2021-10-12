@@ -11,10 +11,7 @@ const CustomNavBar = () => {
     <Navbar color="light" light expand="md">
       <Nav className="mr-auto" navbar>
         <NavItem>
-          <NavLink href="/">Add Entities</NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink href="/layout">Layout</NavLink>
+          <NavLink href="/">Layout</NavLink>
         </NavItem>
       </Nav>
     </Navbar>    

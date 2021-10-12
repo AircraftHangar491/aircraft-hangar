@@ -5,6 +5,7 @@ import './index.css';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import "@syncfusion/ej2-react-diagrams/styles/material.css";
+import 'semantic-ui-css/semantic.min.css'
 import App from './pages/App/App';
 import reportWebVitals from './reportWebVitals';
 
