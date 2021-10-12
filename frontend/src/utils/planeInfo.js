@@ -71,11 +71,8 @@ export const updatePlaneInfo = (id, type, name) => {
   // get the array of plane objects
   const planeList = JSON.parse(window.localStorage.getItem('planes'));
 
-  // find the index of the plane we want to change
-  const index = planeList.findIndex(plane => plane.id === id);
-
   // get the plane so we can change it
-  const plane = planeList[index];
+  const plane = planeList[id];
 
   // update the appropriate fields
   const updatedPlane = {
@@ -94,7 +91,7 @@ export const updatePlaneInfo = (id, type, name) => {
   }
 
   // update the list with the new plane
-  planeList[index] = updatedPlane;
+  planeList[id] = updatedPlane;
 
   // return the updated list
   return planeList;

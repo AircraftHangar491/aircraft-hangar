@@ -25,6 +25,8 @@ const Entity = (
   {
     hangars,
     setHangars,
+    currentHangar,
+    setCurrentHangar,
     planes,
     setPlanes,
     planeCount,
@@ -38,13 +40,12 @@ const Entity = (
   const [nickname, setNickname] = useState("");
 
   const onShowMore = (id, e)  => {
-    const list = [...planes];
+    const list = {...planes};
     
-    const current = {...list.find(plane => plane.id === id)};
+    const current = list[id];
     current.isOpen = !current.isOpen;
 
-    const index = list.findIndex(plane => plane.id === id);
-    list[index] = current;
+    list[id] = current;
 
     setPlanes(list)
   }
@@ -97,7 +98,10 @@ const Entity = (
       const newPlane = planeInfo(nickname, type);
 
       // add planes
-      setPlanes([...planes, newPlane]);
+      setPlanes({
+        ...planes,
+        [newPlane.id]: newPlane
+      });
 
       // reset form states
       setPlaneType("");
@@ -130,8 +134,9 @@ const Entity = (
     const newType = e.target.value;
 
     // update plane count
-    const plane = planes.find(plane => plane.id === id);
-    const oldType = plane.type;
+    const list = {...planes};
+    const oldType = list[id].type;
+
     setPlaneCount(prevState => {
       return {
         ...prevState,
@@ -147,8 +152,20 @@ const Entity = (
 
   // ------- Add plane to hangar -------
 
-  const onAddToHangar = (e) => {
-
+  const onAddToHangar = (e, id) => {
+    if (currentHangar) {
+      const newPlane = planes[id];
+      setHangars({
+        ...hangars,
+        [currentHangar]: {
+          ...hangars[currentHangar],
+          planes: [
+            ...hangars[currentHangar].planes,
+            newPlane
+          ]
+        }
+      });
+    }
   };
   
   return (
@@ -188,32 +205,33 @@ const Entity = (
         </CardHeader>
         <CardBody>
           <Form className="container">
-            {planes.map((plane) => {
+            {Object.entries(planes).map((plane) => {
+              const [key, value] = plane;
               return (
-                <div className="plane-list" key={plane.id}>
-                  <Button block id={plane.id} onClick={e => onShowMore(plane.id, e)}>{plane.type} {`(${plane.name})`}</Button>
-                  <Collapse isOpen={plane.isOpen}>
+                <div className="plane-list" key={key}>
+                  <Button block id={key} onClick={e => onShowMore(key, e)}>{value.type} {`(${value.name})`}</Button>
+                  <Collapse isOpen={value.isOpen}>
                     <Label>Name</Label>
                     <Input
                       type="name"
                       name="name"
                       id="planeName"
-                      value={plane.name}
-                      onChange={e => onNicknameUpdate(e, plane.id, plane.type)}
+                      value={value.name}
+                      onChange={e => onNicknameUpdate(e, key, value.type)}
                     />
                     <Label>Aircraft Type</Label>
                     <Input
                       type="select"
                       name="select"
                       id="planeType"
-                      value={plane.type}
-                      onChange={e => onPlaneTypeUpdate(e, plane.id, plane.name)}
+                      value={value.type}
+                      onChange={e => onPlaneTypeUpdate(e, key, value.name)}
                     >
                       <option>C-17</option>
                       <option>KC-135</option>
                       <option>F-22</option>
                     </Input>
-                    <Button onClick={e => onAddToHangar(e)}>Add to hangar</Button>
+                    <Button onClick={e => onAddToHangar(e, key)}>Add to hangar</Button>
                   </Collapse>
                 </div>
               );

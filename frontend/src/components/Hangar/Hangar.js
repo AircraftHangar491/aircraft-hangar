@@ -9,18 +9,15 @@ import {
   Form,
   Label,
   Input,
-  Nav,
-  NavItem,
-  NavLink,
-  TabContent,
-  TabPane,
   Popover,
   PopoverBody,
   PopoverHeader,
 } from "reactstrap";
 import {
+  Nav,
+  Tabs,
   Tab
-} from "semantic-ui-react";
+} from "react-bootstrap";
 import {
   DiagramComponent,
   DataBinding,
@@ -39,12 +36,12 @@ const Hangar = (
   {
     hangars,
     setHangars,
+    currentHangar,
+    setCurrentHangar,
     hangarCount,
     setHangarCount,
     planes,
     setPlanes,
-    planeCount,
-    setPlaneCount,
   }) => {
 
   const [activeTab, setActiveTab] = useState('1');
@@ -86,8 +83,16 @@ const Hangar = (
     // add hangar
     const newHangar = hangarInfo(nickname, hangarLength, hangarWidth, (hangarCount + 1));
 
-    setHangars([...hangars, newHangar]);
+    if (hangarCount === 0) {
+      setCurrentHangar(newHangar.id);
+    }
+
+    setHangars({
+      ...hangars,
+      [newHangar.id]: newHangar
+    });
     setHangarCount(hangarCount+1);
+
 
     // close form
     setAddHangarsIsOpen(!addHangarsIsOpen);    
@@ -118,125 +123,180 @@ const Hangar = (
   const onPositionChange = (e) => {
     if (e.state === 'Completed') {
       // update the plane position x and y
-      const current = [...planes];
-      const plane = current.find( ({ id }) => {
-        const propName = e.source.propName;
 
-        if (propName === 'nodes') {
-          return id === e.source.properties.id;
+      let changedPlaneId;
+
+      const propName = e.source.propName;
+
+      if (propName === 'nodes') {
+        changedPlaneId = e.source.properties.id;
+      }
+
+      if (propName === 'selectedItems') {
+        const nodes = e.source.properties.nodes;
+        if (nodes.length > 1) {
+          return undefined;
         }
+        changedPlaneId = nodes[0].properties.id;
+      }
 
-        if (propName === 'selectedItems') {
-          const nodes = e.source.properties.nodes;
-          if (nodes.length > 1) {
-            return undefined;
-          }
-          return id === nodes[0].properties.id;
-        }
-
-        return undefined;
-      });
-
+      /*
+      console.log(plane);
 
       plane.offsetX = e.newValue.offsetX;
       plane.offsetY = e.newValue.offsetY;
 
-      const index = current.findIndex(e => e.id === plane.id);
-      current[index] = plane;
-      setPlanes(current);
+      current[changedPlaneId] = plane;
+      */
+      //console.log(current);
+
+      /*
+      setPlanes({
+        ...planes,
+        [changedPlaneId]: {
+          ...planes[changedPlaneId],
+          offsetX: e.newValue.offsetX,
+          offsetY: e.newValue.offsetY
+        }
+      });
+      */
+
+      const hangarPlanes = [...hangars[currentHangar].planes];
+      const currentPlane = hangarPlanes.find(plane => plane.id === changedPlaneId);
+
+      console.log(currentPlane);
+
+      currentPlane.offsetX = e.newValue.offsetX;
+      currentPlane.offsetY = e.newValue.offsetY;
+
+      const index = hangarPlanes.findIndex(plane => plane.id === changedPlaneId);
+      console.log(index);
+
+      hangarPlanes[index] = currentPlane;
+
+      setHangars({
+        ...hangars,
+        [currentHangar]: {
+          ...hangars[currentHangar],
+          planes: hangarPlanes,
+        }
+      });
 
       // check for any overlap
-      checkOverlap(plane);
+      //checkOverlap(plane);
+      
     }
   }
 
   return (
     <div>
-      <Nav tabs>
-        <NavItem>
-          <h4>
-            Hangars
-            <Button id="addHangarButton" type="button" size="sm" style={{ marginLeft: "0.5rem" }}>Add</Button>
-          </h4>
-          <Popover isOpen={addHangarsIsOpen} target="addHangarButton" toggle={onToggleAddHangars}>
-            <PopoverHeader>Add a hangar</PopoverHeader>
-            <PopoverBody>
-              <Form>
-                <Label for="hangarName">Nickname</Label>
-                  <Input
-                    type="name"
-                    name="name"
-                    id="hangarName"
-                    onChange={e => onNicknameSet(e)}
-                  />
-                <Label for="">Length (x-axis)</Label>
-                  <Input
-                    type="number"
-                    name="length"
-                    id="hangarLength"
-                    onChange={e => onDimensionSet(e)}
-                  />
-                <Label for="hangarWidth">Width (y-axis)</Label>
-                  <Input
-                    type="number"
-                    name="width"
-                    id="hangarWidth"
-                    onChange={e => onDimensionSet(e)}
-                  />
-                <Button onClick={e => onAddHangars(e)}>Submit</Button>
-              </Form>
-            </PopoverBody>
-          </Popover>
-        </NavItem>
-        {
-          hangars.map(({ name, number }) => {
-            return (
-              <NavItem>
-                <NavLink onClick={() => toggleTab(number)}>{name}</NavLink>
-              </NavItem>
-            );
-          })
-        }
-      </Nav>
-      <TabContent activeTab={activeTab}>
-        {
-          hangars.map((hangar, index)  => {
-            const { id, number, height, width, planes } = hangar;
-            return (
-              <TabPane tabId={number}>
-                <DiagramComponent
-                  id={`diagram${number}`}
-                  //ref={diagram => (diagramInstance = diagram)}
-                  width = {
-                    width
+        <Nav>
+          <Nav.Item>
+            <h4>
+              Hangars
+              <Button id="addHangarButton" type="button" size="sm" style={{ marginLeft: "0.5rem" }}>Add</Button>
+            </h4>
+            <Popover isOpen={addHangarsIsOpen} target="addHangarButton" toggle={onToggleAddHangars}>
+              <PopoverHeader>Add a hangar</PopoverHeader>
+                <PopoverBody>
+                  <Form>
+                    <Label for="hangarName">Nickname</Label>
+                      <Input
+                        type="name"
+                        name="name"
+                        id="hangarName"
+                        onChange={e => onNicknameSet(e)}
+                      />
+                    <Label for="">Length (x-axis)</Label>
+                      <Input
+                        type="number"
+                        name="length"
+                        id="hangarLength"
+                        onChange={e => onDimensionSet(e)}
+                      />
+                    <Label for="hangarWidth">Width (y-axis)</Label>
+                      <Input
+                        type="number"
+                        name="width"
+                        id="hangarWidth"
+                        onChange={e => onDimensionSet(e)}
+                      />
+                    <Button onClick={e => onAddHangars(e)}>Submit</Button>
+                  </Form>
+                </PopoverBody>
+            </Popover>
+          </Nav.Item>
+          {
+            Object.entries(hangars).map((hangar) => {
+              const [key, value] = hangar;
+              return (
+                <Nav.Item>
+                  <Button
+                    key={key}
+                    id={key}
+                    size="sm"
+                    color={(currentHangar === key) ? "primary" : "secondary"}
+                    style={{ marginLeft: "0.5rem" }}
+                    onClick={() => {
+                      setCurrentHangar(key);
+                    }}
+                  >
+                    {value.name}
+                  </Button>
+                </Nav.Item>
+              );
+            })
+          }
+        </Nav>
+        <div>
+          {
+            (currentHangar) ? 
+              <DiagramComponent
+                id="diagram"
+                ref={diagram => (diagramInstance = diagram)}
+                width = {
+                  720
+                }
+                height = {
+                  820
+                }
+                dataSourceSettings={{
+                  id: currentHangar,
+                  dataManager: new DataManager(hangars[currentHangar].planes),
+                  doBinding: (nodeModel, data, diagram) => {
+                    diagram.clear();
+                    nodeModel.id = data.id;
+                    nodeModel.height = data.height;
+                    nodeModel.width = data.width;
+                    nodeModel.offsetX = data.offsetX;
+                    nodeModel.offsetY = data.offsetY;
+                    nodeModel.pivot = data.pivot;
+                    nodeModel.style = data.style;
+                    nodeModel.shape = data.shape;
+                    //console.log(nodeModel);
+                    //console.log(data);
+                    //console.log(diagram);
                   }
-                  height = {
-                    height
+                }}
+                /*
+                scrollSettings={
+                  {
+                    scrollLimit: "Diagram"
                   }
-                  nodes = {
-                    planes
+                }
+                pageSettings={
+                  {
+                    boundaryConstraints: "Diagram"
                   }
-                  /*
-                  scrollSettings={
-                    {
-                      scrollLimit: "Diagram"
-                    }
-                  }
-                  pageSettings={
-                    {
-                      boundaryConstraints: "Diagram"
-                    }
-                  }
-                  */
-                  positionChange={onPositionChange}
-                >
-                  <Inject services = {[BpmnDiagrams, DataBinding]}/>
-                </DiagramComponent>
-              </TabPane>
-            );
-          })
-        }
-      </TabContent>
+                }
+                */
+                positionChange={onPositionChange}
+              >
+                <Inject services = {[BpmnDiagrams, DataBinding]}/>
+              </DiagramComponent> :
+              <div></div>
+          }
+        </div>
     </div>
   );
 }
