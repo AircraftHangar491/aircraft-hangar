@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import CustomNavBar from "../../components/NavBar";
 import Entity from "../../components/Entity/Entity";
 import Hangar from "../../components/Hangar/Hangar";
@@ -7,12 +7,16 @@ const Layout = (
   {
     hangars,
     setHangars,
+    hangarCount,
+    setHangarCount,
     planes,
     setPlanes,
     planeCount,
     setPlaneCount,
   }) => {
   
+  const [currentHangar, setCurrentHangar] = useState();
+
   return (
     <div>
       <CustomNavBar/>
@@ -22,6 +26,8 @@ const Layout = (
             <Entity
               hangars={hangars}
               setHangars={setHangars}
+              currentHangar={currentHangar}
+              setCurrentHangar={setCurrentHangar}
               planes={planes} 
               setPlanes={setPlanes}
               planeCount={planeCount}
@@ -32,6 +38,10 @@ const Layout = (
             <Hangar
               hangars={hangars}
               setHangars={setHangars}
+              currentHangar={currentHangar}
+              setCurrentHangar={setCurrentHangar}
+              hangarCount={hangarCount}
+              setHangarCount={setHangarCount}
               planes={planes} 
               setPlanes={setPlanes}
               planeCount={planeCount}

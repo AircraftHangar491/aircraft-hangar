@@ -39,13 +39,15 @@ const Hangar = (
   {
     hangars,
     setHangars,
+    hangarCount,
+    setHangarCount,
     planes,
     setPlanes,
     planeCount,
     setPlaneCount,
   }) => {
 
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState('1');
 
   const [addHangarsIsOpen, setAddHangarsIsOpen] = useState(false);
   const [nickname, setNickname] = useState("");
@@ -82,16 +84,10 @@ const Hangar = (
 
   const onAddHangars = (e) => {
     // add hangar
-    const newHangar = hangarInfo(nickname, hangarLength, hangarWidth)
+    const newHangar = hangarInfo(nickname, hangarLength, hangarWidth, (hangarCount + 1));
 
-    setHangars(prevState => {
-      return (
-        {
-          ...prevState,
-          [newHangar.id]: newHangar,
-        }
-      );
-    });
+    setHangars([...hangars, newHangar]);
+    setHangarCount(hangarCount+1);
 
     // close form
     setAddHangarsIsOpen(!addHangarsIsOpen);    
@@ -106,7 +102,8 @@ const Hangar = (
         continue;
       }
         
-      if (changedPlane.type === "C-17") {
+      // check smaller plane if the moved plane is a big plane
+      if (changedPlane.type === "C-17" || changedPlane.type === "KC-135") {
         if (collisionCheck(currentPlanes[index], changedPlane)) {
           console.log("Touching!");
         }
@@ -191,53 +188,54 @@ const Hangar = (
             </PopoverBody>
           </Popover>
         </NavItem>
-        <NavItem>
-          <NavLink onClick={() => toggleTab("1")}>Hangar 1</NavLink>
-        </NavItem>
+        {
+          hangars.map(({ name, number }) => {
+            return (
+              <NavItem>
+                <NavLink onClick={() => toggleTab(number)}>{name}</NavLink>
+              </NavItem>
+            );
+          })
+        }
       </Nav>
       <TabContent activeTab={activeTab}>
-        <TabPane tabId="1">
-          <DiagramComponent
-            id="diagram"
-            ref={diagram => (diagramInstance = diagram)}
-            width = {
-              "720px"
-            }
-            height = {
-              "820px"
-            }
-            dataSourceSettings={{
-              id: "id",
-              dataManager: new DataManager(planes),
-              doBinding: (nodeModel, data, diagram) => {
-                nodeModel.id = data.id;
-                nodeModel.height = data.height;
-                nodeModel.width = data.width;
-                nodeModel.offsetX = data.offsetX;
-                nodeModel.offsetY = data.offsetY;
-                nodeModel.pivot = data.pivot;
-                nodeModel.style = data.style;
-                nodeModel.shape = data.shape;
-                nodeModel.annotations = data.annotations;
-              }
-            }}
-            /*
-            scrollSettings={
-              {
-                scrollLimit: "Diagram"
-              }
-            }
-            pageSettings={
-              {
-                boundaryConstraints: "Diagram"
-              }
-            }
-            */
-            positionChange={onPositionChange}
-          >
-            <Inject services = {[BpmnDiagrams, DataBinding]}/>
-          </DiagramComponent>
-        </TabPane>
+        {
+          hangars.map((hangar, index)  => {
+            const { id, number, height, width, planes } = hangar;
+            return (
+              <TabPane tabId={number}>
+                <DiagramComponent
+                  id={`diagram${number}`}
+                  //ref={diagram => (diagramInstance = diagram)}
+                  width = {
+                    width
+                  }
+                  height = {
+                    height
+                  }
+                  nodes = {
+                    planes
+                  }
+                  /*
+                  scrollSettings={
+                    {
+                      scrollLimit: "Diagram"
+                    }
+                  }
+                  pageSettings={
+                    {
+                      boundaryConstraints: "Diagram"
+                    }
+                  }
+                  */
+                  positionChange={onPositionChange}
+                >
+                  <Inject services = {[BpmnDiagrams, DataBinding]}/>
+                </DiagramComponent>
+              </TabPane>
+            );
+          })
+        }
       </TabContent>
     </div>
   );

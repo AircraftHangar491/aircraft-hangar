@@ -144,6 +144,12 @@ const Entity = (
     const updatedList = updatePlaneInfo(id, newType, name);
     setPlanes(updatedList);
   }
+
+  // ------- Add plane to hangar -------
+
+  const onAddToHangar = (e) => {
+
+  };
   
   return (
     <div>
@@ -207,6 +213,7 @@ const Entity = (
                       <option>KC-135</option>
                       <option>F-22</option>
                     </Input>
+                    <Button onClick={e => onAddToHangar(e)}>Add to hangar</Button>
                   </Collapse>
                 </div>
               );

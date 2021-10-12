@@ -6,9 +6,9 @@ import useLocalStorage from "../../utils/useLocalStorage";
 const App = () => {
 
   // list of hangars
-  const [hangars, setHangars] = useLocalStorage("hangars", {});
+  const [hangars, setHangars] = useLocalStorage("hangars", []);
 
-  const [hangarRender, setHangarRender] = useLocalStorage("hangarRender", []);
+  const [hangarCount, setHangarCount] = useLocalStorage("hangarCount", 0);
 
   // list of all planes
   const [planes, setPlanes] = useLocalStorage('planes', []);
@@ -27,8 +27,8 @@ const App = () => {
                   {...props}
                   hangars={hangars}
                   setHangars={setHangars}
-                  hangarRender={hangarRender}
-                  setHangarRender={setHangarRender}
+                  hangarCount={hangarCount}
+                  setHangarCount={setHangarCount}
                   planes={planes}
                   setPlanes={setPlanes}
                   planeCount={planeCount}
