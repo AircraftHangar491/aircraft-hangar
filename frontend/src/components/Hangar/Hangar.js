@@ -45,6 +45,7 @@ const Hangar = (
   }) => {
 
   const [activeTab, setActiveTab] = useState('1');
+  const [prevHangar, setPrevHangar] = useState();
 
   const [addHangarsIsOpen, setAddHangarsIsOpen] = useState(false);
   const [nickname, setNickname] = useState("");
@@ -187,6 +188,9 @@ const Hangar = (
       
     }
   }
+  console.log(prevHangar);
+
+  console.log(diagramInstance);
 
   return (
     <div>
@@ -238,6 +242,7 @@ const Hangar = (
                     color={(currentHangar === key) ? "primary" : "secondary"}
                     style={{ marginLeft: "0.5rem" }}
                     onClick={() => {
+                      setPrevHangar(currentHangar);
                       setCurrentHangar(key);
                     }}
                   >
@@ -261,10 +266,12 @@ const Hangar = (
                   820
                 }
                 dataSourceSettings={{
-                  id: currentHangar,
-                  dataManager: new DataManager(hangars[currentHangar].planes),
+                  id: "id",
+                  dataSource: new DataManager(hangars[currentHangar].planes),
                   doBinding: (nodeModel, data, diagram) => {
+
                     diagram.clear();
+                    
                     nodeModel.id = data.id;
                     nodeModel.height = data.height;
                     nodeModel.width = data.width;
@@ -273,9 +280,7 @@ const Hangar = (
                     nodeModel.pivot = data.pivot;
                     nodeModel.style = data.style;
                     nodeModel.shape = data.shape;
-                    //console.log(nodeModel);
-                    //console.log(data);
-                    //console.log(diagram);
+                    nodeModel.annotations = data.annotations;
                   }
                 }}
                 /*
