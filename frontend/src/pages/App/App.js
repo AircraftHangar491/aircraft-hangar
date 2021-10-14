@@ -11,7 +11,7 @@ const App = () => {
   const [hangarCount, setHangarCount] = useLocalStorage("hangarCount", 0);
 
   // list of all planes
-  const [planes, setPlanes] = useLocalStorage('planes', {});
+  const [planes, setPlanes] = useLocalStorage('planes', { added: {}, pending: {} });
 
   // count of all plane types
   const [planeCount, setPlaneCount] = useLocalStorage('planeCount', { "C-17": 0, "KC-135": 0, "F-22": 0 });
