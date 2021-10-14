@@ -21,6 +21,7 @@ import {
   PopoverHeader,
 } from 'reactstrap';
 import { planeInfo, updatePlaneInfo } from "../../utils/planeInfo";
+import { hangarAlgorithm } from '../Hangar/Hangar.utils';
 
 const Entity = (
   {
@@ -260,7 +261,7 @@ const Entity = (
           </Form>
         </CardBody>
         <CardFooter>
-          <Button className="block">Auto</Button>
+          <Button className="block" onClick={() => hangarAlgorithm(planes, hangars)}>Auto</Button>
         </CardFooter>
       </Card>
     </div>
