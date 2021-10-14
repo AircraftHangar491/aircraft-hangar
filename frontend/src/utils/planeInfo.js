@@ -72,7 +72,7 @@ export const updatePlaneInfo = (id, type, name) => {
   const planeList = JSON.parse(window.localStorage.getItem('planes'));
 
   // get the plane so we can change it
-  const plane = planeList[id];
+  const plane = planeList.pending[id];
 
   // update the appropriate fields
   const updatedPlane = {
@@ -91,7 +91,7 @@ export const updatePlaneInfo = (id, type, name) => {
   }
 
   // update the list with the new plane
-  planeList[id] = updatedPlane;
+  planeList.pending[id] = updatedPlane;
 
   // return the updated list
   return planeList;

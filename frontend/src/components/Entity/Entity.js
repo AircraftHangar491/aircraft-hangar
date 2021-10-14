@@ -5,6 +5,7 @@ import {
   ButtonDropdown,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
   Col,
   Collapse,
@@ -40,14 +41,19 @@ const Entity = (
   const [nickname, setNickname] = useState("");
 
   const onShowMore = (id, e)  => {
-    const list = {...planes};
+    const list = {...planes.pending};
     
+    console.log(list);
+
     const current = list[id];
     current.isOpen = !current.isOpen;
 
     list[id] = current;
 
-    setPlanes(list)
+    setPlanes({
+      ...planes,
+      pending: list,
+    })
   }
 
   const onToggleAddPlane = (e) => {
@@ -100,7 +106,10 @@ const Entity = (
       // add planes
       setPlanes({
         ...planes,
-        [newPlane.id]: newPlane
+        pending: {
+          ...planes.pending,
+          [newPlane.id]: newPlane
+        }
       });
 
       // reset form states
@@ -134,7 +143,7 @@ const Entity = (
     const newType = e.target.value;
 
     // update plane count
-    const list = {...planes};
+    const list = {...planes.pending};
     const oldType = list[id].type;
 
     setPlaneCount(prevState => {
@@ -154,7 +163,8 @@ const Entity = (
 
   const onAddToHangar = (e, id) => {
     if (currentHangar) {
-      const newPlane = planes[id];
+      // add the plane to the hangar
+      const newPlane = planes.pending[id];
       setHangars({
         ...hangars,
         [currentHangar]: {
@@ -165,6 +175,16 @@ const Entity = (
           ]
         }
       });
+
+      const currentPlanes = {...planes};
+
+      // add the plane to the added list
+      currentPlanes.added[id] = currentPlanes.pending[id];
+
+      // remove the added plane from pending list
+      delete currentPlanes.pending[id];
+
+      setPlanes(currentPlanes);
     }
   };
   
@@ -203,13 +223,14 @@ const Entity = (
             </PopoverBody>
           </Popover>
         </CardHeader>
-        <CardBody>
+        <CardBody className="scroll">
           <Form className="container">
-            {Object.entries(planes).map((plane) => {
+            {Object.entries(planes.pending).map((plane) => {
+              console.log(plane);
               const [key, value] = plane;
               return (
                 <div className="plane-list" key={key}>
-                  <Button block id={key} onClick={e => onShowMore(key, e)}>{value.type} {`(${value.name})`}</Button>
+                  <Button className="block" id={key} onClick={e => onShowMore(key, e)}>{value.type} {`(${value.name})`}</Button>
                   <Collapse isOpen={value.isOpen}>
                     <Label>Name</Label>
                     <Input
@@ -238,6 +259,9 @@ const Entity = (
             })}
           </Form>
         </CardBody>
+        <CardFooter>
+          <Button className="block">Auto</Button>
+        </CardFooter>
       </Card>
     </div>
   );
