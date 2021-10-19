@@ -188,6 +188,16 @@ const Entity = (
       setPlanes(currentPlanes);
     }
   };
+
+  // -------------- Add planes using algorithm ----------
+
+  const addPlanesAlgorithm = () => {
+    const { newPlaneCount, newPlanes, newHangars } = hangarAlgorithm(planeCount, planes, hangars);
+    
+    setPlaneCount({ ...newPlaneCount });
+    setPlanes({ ...newPlanes });
+    setHangars({ ...newHangars });
+  }
   
   return (
     <div>
@@ -227,7 +237,6 @@ const Entity = (
         <CardBody className="scroll">
           <Form className="container">
             {Object.entries(planes.pending).map((plane) => {
-              console.log(plane);
               const [key, value] = plane;
               return (
                 <div className="plane-list" key={key}>
@@ -261,7 +270,7 @@ const Entity = (
           </Form>
         </CardBody>
         <CardFooter>
-          <Button className="block" onClick={() => hangarAlgorithm(planes, hangars)}>Auto</Button>
+          <Button className="block" onClick={() => addPlanesAlgorithm()}>Auto</Button>
         </CardFooter>
       </Card>
     </div>

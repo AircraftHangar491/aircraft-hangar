@@ -20,7 +20,7 @@ const Layout = (
   return (
     <div>
       <CustomNavBar/>
-      <div className="container hangar">
+      <div className="container mb-5 hangar">
         <div className="row">
           <div className="col-sm col-md-3">
             <Entity

@@ -10,3 +10,11 @@
 .form-title {
   padding-right: 0.5rem;
 }
+
+.hangar-navb {
+  margin: 1rem 0;
+}
+
+.hangar-navb > * {
+  margin-right: 1rem;
+}
