@@ -1,3 +1,6 @@
+import swal from 'sweetalert';
+import _ from 'lodash';
+
 function getCorners(plane) {
 
   const planeWidth = plane.width;
@@ -125,8 +128,152 @@ export function collisionCheck(a, b) {
   1) Fit the biggest plane, either C-17 or KC-135, in the center then fit F-22's around the big plane.
   2) Do not fit a big plane and only fit F-22's.
 */
-export function hangarAlgorithm(planes, hangars) {
+export function hangarAlgorithm(planeCount, planes, hangars) {
   console.log(planes);
   console.log(hangars);
+
+  const c17Count = planeCount['C-17'];
+  const kc135Count = planeCount['KC-135'];
+  const f22Count = planeCount['F-22'];
+
+  // check if there is a plane
+  if (c17Count === 0 && kc135Count === 0 && f22Count === 0) {
+    swal('Error', 'There are no planes to be added to the hangar', 'error');
+    return;
+  }
+
+  // returns [ [ key, object], ... ]
+  const hangarArray = Object.entries(hangars);
+
+  const firstHangar = hangarArray[0][1];
+
+  // hangar corner
+  const topLeftX = 0;
+  const topLeftY = 0;
+
+  const topRightX = firstHangar.width;
+  const topRightY = 0;
+
+  const bottomLeftX = 0;
+  const bottomLeftY = firstHangar.height;
+
+  const bottomRightX = firstHangar.width;
+  const bottomRightY = firstHangar.height;
+
+
+  let bigPlane = null;
+
+  // check if there are big planes
+    // if there are then put them in the center of the plane
+  if (c17Count > 0 || kc135Count > 0) {
+    // take the first big plane on the list
+    bigPlane = _.find(planes.pending, ['type', 'C-17']) || _.find(planes.pending, ['type', 'KC-135']);
+
+    // get the center of the hangar and place the plane there
+    bigPlane.offsetX = firstHangar.width / 2;
+    bigPlane.offsetY = firstHangar.height / 2;
+
+    // add the plane to added planes list
+    planes.added[bigPlane.id] = bigPlane;
+
+    // add the plane to the hangar
+    firstHangar.planes.push(bigPlane);
+
+    // remove the plane from the pending list
+    delete planes.pending[bigPlane.id];
+    // decrease plane count
+    planeCount[bigPlane.type] -= 1;
+  }
+
+
+  // returns [ [ key, object], ... ]
+  const planeArray = Object.entries(planes.pending);
+
+  // put a box length between the wall and the plane
+  const box = 10;
+
+  // used to guide the algorithm for each row
+  let startY = 0;
+  let startX = 0;
+
+  // used to place the planes after the initial plane on a row
+  let currentX = 0;
+  let currentY = 0;
+
+  // loop through the planes 
+  for( const [id, plane] of planeArray)  {
+
+    // if the plane is big then go to the next plane
+    if (plane.type === 'C-17' || plane.type === 'KC-135') continue;
+
+    const { width, height } = plane;
+
+    console.log(id);
+    console.log(plane)
+    if (startY === 0 && startX === 0) {
+      startY = firstHangar.height - ((height/2) + box);
+      startX = (width/2) + box;
+
+      currentY = startY;
+      currentX = startX;
+    }
+
+    // check to see if there is a big plane
+    if (bigPlane !== null) {
+      // check if the corner would touch the big plane
+        // if it will then go to the right
+      const testPlane = {...plane};
+      testPlane.offsetX = currentX;
+      testPlane.offsetY = currentY;
+
+      console.log(testPlane);
+      console.log(collisionCheck(bigPlane, testPlane));
+      console.log(collisionCheck(testPlane, bigPlane));
+      while(collisionCheck(bigPlane, testPlane) || collisionCheck(testPlane, bigPlane)) {
+        console.log('hello');
+        currentX += (plane.width + box);
+
+        if (currentX > firstHangar.width) {
+          currentY -= (height + box);
+          testPlane.offsetY  = currentY;
+
+          currentX = startX;  
+        };
+
+        testPlane.offsetX = currentX;
+      }
+    }
+
+    // set the position of the plane
+    plane.offsetX = currentX;
+    plane.offsetY = currentY;
+
+    // add the plane to added planes list
+    planes.added[id] = plane;
+
+    // add the plane to the hangar
+    firstHangar.planes.push(plane);
+
+    // remove the plane from the pending list
+    delete planes.pending[id];
+
+    // decrease plane count
+    planeCount[plane.type] -= 1;
+
+    currentX += (width + box);
+
+    // check if you reached the end of the row
+    if (currentX > firstHangar.width) {
+      currentX = startX;
+      currentY -= (height + box);
+    }
+
+    // check if the top corner of the plane is outside the hangar
+    if ((currentY - (height/2)) < 0) {
+      break;
+    } 
+  }
+
+  return { newPlaneCount: planeCount, newPlanes: planes, newHangars: hangars };
 }
 

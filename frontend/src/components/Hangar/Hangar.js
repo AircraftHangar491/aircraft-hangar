@@ -52,11 +52,7 @@ const Hangar = (
   const [hangarLength, setHangarLength] = useState(0);
   const [hangarWidth, setHangarWidth] = useState(0);
 
-  const toggleTab = (tab) => {
-    if (activeTab !== tab) {
-      setActiveTab(tab);
-    }
-  }
+  // ---------------------------- form functions -------------------------------------
 
   const onToggleAddHangars = (e) => {
     // toggle button true or false
@@ -98,6 +94,13 @@ const Hangar = (
     // close form
     setAddHangarsIsOpen(!addHangarsIsOpen);    
   }
+
+  const removePlane = () => {
+    
+  }
+
+
+  // ---------------------------- checking for collision -------------------------------------
 
   const checkOverlap = (changedPlane) => {
     const currentPlanes = [...hangars[currentHangar].planes];
@@ -229,49 +232,58 @@ const Hangar = (
       <div>
         {
           (currentHangar) ? 
-            <DiagramComponent
-              id="diagram"
-              ref={diagram => (diagramInstance = diagram)}
-              width = {
-                hangars[currentHangar].width
-              }
-              height = {
-                hangars[currentHangar].height
-              }
-              dataSourceSettings={{
-                id: "id",
-                dataSource: new DataManager(hangars[currentHangar].planes),
-                doBinding: (nodeModel, data, diagram) => {
+            <div>
+              <Nav>
+                <Nav.Item className="hangar-navb">
+                  <Button size="sm">Edit Hangar</Button>
+                  <Button size="sm" onClick={removePlane}>Remove plane from hangar</Button>
+                  <Button size="sm">Delete plane</Button>
+                </Nav.Item>
+              </Nav>
+              <DiagramComponent
+                id="diagram"
+                ref={diagram => (diagramInstance = diagram)}
+                width = {
+                  hangars[currentHangar].width
+                }
+                height = {
+                  hangars[currentHangar].height
+                }
+                dataSourceSettings={{
+                  id: "id",
+                  dataSource: new DataManager(hangars[currentHangar].planes),
+                  doBinding: (nodeModel, data, diagram) => {
 
-                  diagram.clear();
+                    diagram.clear();
 
-                  nodeModel.id = data.id;
-                  nodeModel.height = data.height;
-                  nodeModel.width = data.width;
-                  nodeModel.offsetX = data.offsetX;
-                  nodeModel.offsetY = data.offsetY;
-                  nodeModel.pivot = data.pivot;
-                  nodeModel.style = data.style;
-                  nodeModel.shape = data.shape;
-                  nodeModel.annotations = data.annotations;
+                    nodeModel.id = data.id;
+                    nodeModel.height = data.height;
+                    nodeModel.width = data.width;
+                    nodeModel.offsetX = data.offsetX;
+                    nodeModel.offsetY = data.offsetY;
+                    nodeModel.pivot = data.pivot;
+                    nodeModel.style = data.style;
+                    nodeModel.shape = data.shape;
+                    nodeModel.annotations = data.annotations;
+                  }
+                }}
+                /*
+                scrollSettings={
+                  {
+                    scrollLimit: "Diagram"
+                  }
                 }
-              }}
-              /*
-              scrollSettings={
-                {
-                  scrollLimit: "Diagram"
+                pageSettings={
+                  {
+                    boundaryConstraints: "Diagram"
+                  }
                 }
-              }
-              pageSettings={
-                {
-                  boundaryConstraints: "Diagram"
-                }
-              }
-              */
-              positionChange={onPositionChange}
-            >
-              <Inject services = {[BpmnDiagrams, DataBinding]}/>
-            </DiagramComponent> :
+                */
+                positionChange={onPositionChange}
+              >
+                <Inject services = {[BpmnDiagrams, DataBinding]}/>
+              </DiagramComponent>
+            </div> :
             <div></div>
         }
       </div>
