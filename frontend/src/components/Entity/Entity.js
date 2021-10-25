@@ -179,6 +179,8 @@ const Entity = (
 
       const currentPlanes = {...planes};
 
+      currentPlanes.pending[id].isOpen = false;
+
       // add the plane to the added list
       currentPlanes.added[id] = currentPlanes.pending[id];
 
