@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./Hangar.css";
-import { v4 as uuidv4 } from 'uuid';
 import {
   Button,
-  Card,
-  CardBody,
-  CardHeader,
   Form,
   Label,
   Input,
@@ -15,8 +11,6 @@ import {
 } from "reactstrap";
 import {
   Nav,
-  Tabs,
-  Tab
 } from "react-bootstrap";
 import {
   DiagramComponent,
@@ -27,8 +21,10 @@ import {
 import {
   DataManager,
 } from '@syncfusion/ej2-data';
-import { hangarAlgorithm, collisionCheck } from "./Hangar.utils";
-import { hangarInfo } from "../../utils/hangarInfo";
+import _ from 'lodash';
+import { collisionCheck } from "./Hangar.utils";
+import { hangarInfo, updateHangarInfo } from "../../utils/hangarInfo";
+import swal from "sweetalert";
 
 let diagramInstance;
 
@@ -44,20 +40,15 @@ const Hangar = (
     setPlanes,
   }) => {
 
-  const [activeTab, setActiveTab] = useState('1');
-  const [prevHangar, setPrevHangar] = useState();
-
   const [addHangarsIsOpen, setAddHangarsIsOpen] = useState(false);
   const [nickname, setNickname] = useState("");
   const [hangarLength, setHangarLength] = useState(0);
   const [hangarWidth, setHangarWidth] = useState(0);
 
-  // ---------------------------- form functions -------------------------------------
+  const [selectedPlane, setSelectedPlane] = useState();
+  const [editHangarIsOpen, setEditHangarIsOpen] = useState(false);
 
-  const onToggleAddHangars = (e) => {
-    // toggle button true or false
-    setAddHangarsIsOpen(!addHangarsIsOpen);
-  }
+  // ---------------------------- form functions -------------------------------------
 
   const onNicknameSet = (e) => {
     const { value } = e.target;
@@ -76,6 +67,13 @@ const Hangar = (
     }
   }
 
+    // ---- Add hangar -----
+
+  const onToggleAddHangars = (e) => {
+    // toggle button true or false
+    setAddHangarsIsOpen(!addHangarsIsOpen);
+  }
+
   const onAddHangars = (e) => {
     // add hangar
     const newHangar = hangarInfo(nickname, hangarLength, hangarWidth, (hangarCount + 1));
@@ -92,15 +90,90 @@ const Hangar = (
 
 
     // close form
-    setAddHangarsIsOpen(!addHangarsIsOpen);    
+    setAddHangarsIsOpen(!addHangarsIsOpen);
+
+    // reset form states
+    setNickname("");
+    setHangarLength(0);
+    setHangarWidth(0);
   }
 
-  const removePlane = () => {
+  // ----- Edit Hangar -------
+
+  const onToggleEditHangar = () => {
+    setEditHangarIsOpen(!editHangarIsOpen);
+  }
+
+  const onEditHangar = () => {
+    const hangarList = updateHangarInfo(currentHangar, nickname, hangarWidth, hangarLength);
+
+    setHangars(hangarList);
+
+    // close form
+    setEditHangarIsOpen(!editHangarIsOpen);
+
+    // reset form states
+    setNickname("");
+    setHangarLength(0);
+    setHangarWidth(0);
+  }
+
+  const removePlane = () => {    
+    if (!selectedPlane) return swal('Error', 'Choose a plane.', 'error');
+
+    const hangarPlanes = [...hangars[currentHangar].planes];
     
+    _.remove(hangarPlanes, (plane) => {
+      return plane.id === selectedPlane;
+    });
+
+    setHangars({
+      ...hangars,
+      [currentHangar]: {
+        ...hangars[currentHangar],
+        planes: hangarPlanes
+      }
+    });
+
+    const currentPlanes = { ...planes};
+
+    currentPlanes.pending[selectedPlane] = currentPlanes.added[selectedPlane];
+    
+    delete planes.added[selectedPlane];
+
+    setPlanes(currentPlanes);
   }
 
+  const deletePlane = () => {
+    if (!selectedPlane) return swal('Error', 'Choose a plane.', 'error');
 
-  // ---------------------------- checking for collision -------------------------------------
+    const hangarPlanes = [...hangars[currentHangar].planes];
+    
+    _.remove(hangarPlanes, (plane) => {
+      return plane.id === selectedPlane;
+    });
+
+    setHangars({
+      ...hangars,
+      [currentHangar]: {
+        ...hangars[currentHangar],
+        planes: hangarPlanes
+      }
+    });
+  }
+
+  // ------------ hangar functions --------------------------------
+
+  const onClickPlane = (e) => { 
+    const { actualObject } = e;
+
+    console.log(actualObject);
+    if (actualObject) {
+      return setSelectedPlane(actualObject.properties.id);
+    }
+
+    return setSelectedPlane(null);
+  }
 
   const checkOverlap = (changedPlane) => {
     const currentPlanes = [...hangars[currentHangar].planes];
@@ -164,10 +237,9 @@ const Hangar = (
 
       // check for any overlap
       checkOverlap(currentPlane);
-      
     }
   }
-
+  
   return (
     <div>
       <Nav>
@@ -177,7 +249,7 @@ const Hangar = (
             <Button id="addHangarButton" type="button" size="sm" style={{ marginLeft: "0.5rem" }}>Add</Button>
           </h4>
           <Popover isOpen={addHangarsIsOpen} target="addHangarButton" toggle={onToggleAddHangars}>
-            <PopoverHeader>Add a hangar</PopoverHeader>
+            <PopoverHeader>Add a Hangar</PopoverHeader>
               <PopoverBody>
                 <Form>
                   <Label for="hangarName">Nickname</Label>
@@ -187,18 +259,18 @@ const Hangar = (
                       id="hangarName"
                       onChange={e => onNicknameSet(e)}
                     />
-                  <Label for="">Length (x-axis)</Label>
-                    <Input
-                      type="number"
-                      name="length"
-                      id="hangarLength"
-                      onChange={e => onDimensionSet(e)}
-                    />
-                  <Label for="hangarWidth">Width (y-axis)</Label>
+                  <Label for="hangarWidth">Width (x-axis)</Label>
                     <Input
                       type="number"
                       name="width"
                       id="hangarWidth"
+                      onChange={e => onDimensionSet(e)}
+                    />
+                  <Label for="">Length (y-axis)</Label>
+                    <Input
+                      type="number"
+                      name="length"
+                      id="hangarLength"
                       onChange={e => onDimensionSet(e)}
                     />
                   <Button onClick={e => onAddHangars(e)}>Submit</Button>
@@ -218,7 +290,6 @@ const Hangar = (
                   color={(currentHangar === key) ? "primary" : "secondary"}
                   style={{ marginLeft: "0.5rem" }}
                   onClick={() => {
-                    setPrevHangar(currentHangar);
                     setCurrentHangar(key);
                   }}
                 >
@@ -235,9 +306,39 @@ const Hangar = (
             <div>
               <Nav>
                 <Nav.Item className="hangar-navb">
-                  <Button size="sm">Edit Hangar</Button>
+                  <Button id="editHangarButton" size="sm">Edit Hangar</Button>
+                  <Popover isOpen={editHangarIsOpen} target="editHangarButton" toggle={onToggleEditHangar}>
+                  <PopoverHeader>Edit Hangar</PopoverHeader>
+                    <PopoverBody>
+                      <Form>
+                        <Label for="hangarName">Nickname</Label>
+                          <Input
+                            type="name"
+                            name="name"
+                            id="hangarName"
+                            onChange={e => onNicknameSet(e)}
+                          />
+                        <Label for="hangarWidth">Width (x-axis)</Label>
+                          <Input
+                            type="number"
+                            name="width"
+                            id="hangarWidth"
+                            onChange={e => onDimensionSet(e)}
+                          />
+                        <Label for="">Length (y-axis)</Label>
+                          <Input
+                            type="number"
+                            name="length"
+                            id="hangarLength"
+                            onChange={e => onDimensionSet(e)}
+                          />
+                        <Button onClick={e => onEditHangar(e)}>Submit</Button>
+                      </Form>
+                    </PopoverBody>
+                </Popover>
+
                   <Button size="sm" onClick={removePlane}>Remove plane from hangar</Button>
-                  <Button size="sm">Delete plane</Button>
+                  <Button size="sm" onClick={deletePlane}>Delete plane</Button>
                 </Nav.Item>
               </Nav>
               <DiagramComponent
@@ -267,18 +368,7 @@ const Hangar = (
                     nodeModel.annotations = data.annotations;
                   }
                 }}
-                /*
-                scrollSettings={
-                  {
-                    scrollLimit: "Diagram"
-                  }
-                }
-                pageSettings={
-                  {
-                    boundaryConstraints: "Diagram"
-                  }
-                }
-                */
+                click={onClickPlane}
                 positionChange={onPositionChange}
               >
                 <Inject services = {[BpmnDiagrams, DataBinding]}/>
