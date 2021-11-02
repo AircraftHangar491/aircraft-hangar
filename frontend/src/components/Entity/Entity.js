@@ -40,6 +40,7 @@ const Entity = (
   // for the add form
   const [planeType, setPlaneType] = useState();
   const [nickname, setNickname] = useState("");
+  const [planeAmount, setPlaneAmount] = useState("");
 
   const onShowMore = (id, e)  => {
     const list = {...planes.pending};
@@ -70,15 +71,11 @@ const Entity = (
 
   const onAddAirplane = (e) => { 
 
-    // set default nickname if the user did not make one
-    if (nickname === "") {
-      setNickname(`${planeType} ${planeCount[planeType] + 1}`);
-    }
-
+    const amount = planeAmount === "" ? 1 : parseInt(planeAmount);
     setPlaneCount(prevState => {
       return {
         ...prevState,
-        [planeType]: planeCount[planeType] + 1,
+        [planeType]: planeCount[planeType] + amount,
       }
     });
 
@@ -102,15 +99,24 @@ const Entity = (
         type = "F-22"
       }
 
-      const newPlane = planeInfo(nickname, type);
+
+      const newPlanesList = {...planes.pending}
+      
+      let index = 0;
+      const amount = planeAmount === "" ? 1 : parseInt(planeAmount);
+      
+      while(index < amount) {
+        const name = nickname === "" ? `${type} ${planeCount[type] - amount + index + 1}` : nickname;
+        const newPlanes = planeInfo(name, type);
+
+        newPlanesList[newPlanes.id] = newPlanes;
+        index += 1;
+      }
 
       // add planes
       setPlanes({
         ...planes,
-        pending: {
-          ...planes.pending,
-          [newPlane.id]: newPlane
-        }
+        pending: {...newPlanesList}
       });
 
       // reset form states
@@ -128,6 +134,11 @@ const Entity = (
   const onNicknameSet = (e) => {
     const nickname = e.target.value;
     setNickname(nickname);
+  }
+
+  const onPlaneAmountSet = (e) => {
+    const amount = e.target.value;
+    setPlaneAmount(amount);
   }
 
 
@@ -231,7 +242,15 @@ const Entity = (
                     <option>KC-135</option>
                     <option>F-22</option>
                   </Input>
-                  <Button onClick={e => onAddAirplane(e)}>Submit</Button>             
+                <Label>Amount</Label>
+                  <Input
+                    type="number"
+                    name="amount"
+                    id="planeAmount"
+                    placeholder="1"
+                    onChange={e => onPlaneAmountSet(e)}
+                    />
+                <Button onClick={e => onAddAirplane(e)}>Submit</Button>             
               </Form>
             </PopoverBody>
           </Popover>

@@ -218,9 +218,9 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
         testPlane.offsetY = currentY;
   
         while(collisionCheck(bigPlane, testPlane) || collisionCheck(testPlane, bigPlane)) {
-          currentX += (plane.width + box);
+          currentX += ((width/2) + box);
   
-          if (currentX > hangar.width) {
+          if ((currentX + (width/2)) > hangar.width) {
             currentY -= (height + box);
             testPlane.offsetY  = currentY;
   
@@ -250,7 +250,7 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
       currentX += (width + box);
   
       // check if you reached the end of the row
-      if (currentX > hangar.width) {
+      if ( (currentX + (width/2)) > hangar.width) {
         currentX = startX;
         currentY -= (height + box);
       }
