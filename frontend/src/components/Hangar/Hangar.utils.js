@@ -1,7 +1,13 @@
 import swal from 'sweetalert';
 import _ from 'lodash';
 
+// get the plane corners
 function getCorners(plane) {
+
+  let top;
+  let bottom;
+  let left;
+  let right;
 
   const planeWidth = plane.width;
   const planeHeight = plane.height;
@@ -9,26 +15,56 @@ function getCorners(plane) {
   const planeX = plane.offsetX;
   const planeY = plane.offsetY;
 
-  // get the four corners
-  const top = {
-    x: planeX,
-    y: (planeY - (planeHeight / 2))
-  };
+  if (plane.name !== "obstruction") {
 
-  const bottom = {
-    x: planeX,
-    y: (planeY + (planeHeight / 2))
-  };
+    // get the plane corners
+    top = {
+      x: planeX,
+      y: (planeY - (planeHeight / 2))
+    };
+  
+    bottom = {
+      x: planeX,
+      y: (planeY + (planeHeight / 2))
+    };
+  
+    left = {
+      x: (planeX - (planeWidth / 2)),
+      y: planeY
+    };
+  
+    right = {
+      x: (planeX + (planeWidth / 2)),
+      y: planeY
+    };
+  } else {
+    // get obstruction corners
+    // imagine as if a square was rotated clockwise to look like a diamond
 
-  const left = {
-    x: (planeX - (planeWidth / 2)),
-    y: planeY
-  };
+    // top left
+    top = {
+      x: planeX - (planeWidth / 2),
+      y: planeY - (planeHeight / 2)
+    };
 
-  const right = {
-    x: (planeX + (planeWidth / 2)),
-    y: planeY
-  };
+    // bottom right
+    bottom = {
+      x: planeX + (planeWidth / 2),
+      y: planeY + (planeHeight / 2)
+    }
+
+    // bottom left
+    left = {
+      x: planeX - (planeWidth / 2),
+      y: planeY + (planeHeight / 2)
+    }
+
+    // top right
+    right = {
+      x: planeX + (planeWidth / 2),
+      y: planeY - (planeHeight / 2)
+    }
+  }
 
   return { top, bottom, left, right }
 }
@@ -146,7 +182,12 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
 
     // if there are no planes left then leave
     if (c17Count === 0 && kc135Count === 0 && f22Count === 0) break;
-  
+
+    const obstructionList = [];
+    hangar.planes.forEach(node => { if(node.name === "obstruction") return obstructionList.push(node)})
+
+    console.log(obstructionList);
+
     let bigPlane = null;
 
     // check if there are big planes
@@ -193,6 +234,9 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
     let currentX = 0;
     let currentY = 0;
   
+    // keep track of row number
+    let row = 1;
+
     // loop through the planes 
     for( const [id, plane] of planeArray)  {
   
@@ -229,6 +273,12 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
   
           testPlane.offsetX = currentX;
         }
+      }
+
+      // check to see if there are any obstructions
+      if (obstructionList.length > 0) {
+
+        
       }
   
       // set the position of the plane

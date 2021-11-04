@@ -28,7 +28,9 @@ export const color = (type) => {
   }
 }
 
-export const planeInfo = (name, type) => {
+export const planeInfo = (name, type, hangarWidth, hangarHeight) => {
+
+
 
   return (
     {
@@ -42,8 +44,8 @@ export const planeInfo = (name, type) => {
         y: 0.5,
       },
       // Position of the node
-      offsetX: Math.floor(Math.random() * 101),
-      offsetY: Math.floor(Math.random() * 101),
+      offsetX: 0,
+      offsetY: 0,
       // Size of the node
       width: size(type).width,
       height: size(type).height,

@@ -22,6 +22,7 @@ import {
 } from 'reactstrap';
 import { planeInfo, updatePlaneInfo } from "../../utils/planeInfo";
 import { hangarAlgorithm } from '../Hangar/Hangar.utils';
+import swal from 'sweetalert';
 
 const Entity = (
   {
@@ -99,12 +100,11 @@ const Entity = (
         type = "F-22"
       }
 
-
       const newPlanesList = {...planes.pending}
       
       let index = 0;
       const amount = planeAmount === "" ? 1 : parseInt(planeAmount);
-      
+
       while(index < amount) {
         const name = nickname === "" ? `${type} ${planeCount[type] - amount + index + 1}` : nickname;
         const newPlanes = planeInfo(name, type);
@@ -177,6 +177,15 @@ const Entity = (
     if (currentHangar) {
       // add the plane to the hangar
       const newPlane = planes.pending[id];
+
+      const hangarWidth = hangars[currentHangar].width;
+      const hangarHeight = hangars[currentHangar].height;
+
+      if(newPlane.width > hangarWidth || newPlane.height > hangarHeight) return swal("Error", "The plane cannot fit inside the selected hangar.", "error");
+
+      newPlane.offsetX = hangarWidth / 2;
+      newPlane.offsetY = hangarHeight / 2;
+
       setHangars({
         ...hangars,
         [currentHangar]: {
