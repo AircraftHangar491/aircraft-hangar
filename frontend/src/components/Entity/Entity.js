@@ -29,7 +29,6 @@ const Entity = (
     hangars,
     setHangars,
     currentHangar,
-    setCurrentHangar,
     planes,
     setPlanes,
     planeCount,
@@ -207,6 +206,10 @@ const Entity = (
       // remove the added plane from pending list
       delete currentPlanes.pending[id];
 
+      const currentCount = {...planeCount};
+      currentCount[currentPlanes.added[id].type] -= 1;
+  
+      setPlaneCount({...currentCount});
       setPlanes(currentPlanes);
     }
   };

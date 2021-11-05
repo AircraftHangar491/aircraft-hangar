@@ -37,6 +37,8 @@ function getCorners(plane) {
       x: (planeX + (planeWidth / 2)),
       y: planeY
     };
+    console.log(plane);
+    console.log({ top, bottom, left, right });
   } else {
     // get obstruction corners
     // imagine as if a square was rotated clockwise to look like a diamond
@@ -79,11 +81,14 @@ function calculateArea(px, py, trianglePoints) {
   return (area1 + area2 + area3);
 }
 
+// check if any corner of a is touching the top half of b
 function checkTopHalf(a, b) {
   const x1 = b.left.x;
   const y1 = b.left.y;
+
   const x2 = b.right.x;
   const y2 = b.right.y;
+
   const x3 = b.top.x;
   const y3 = b.top.y;
 
@@ -97,7 +102,7 @@ function checkTopHalf(a, b) {
 
   const rightX = a.right.x;
   const rightY = a.right.y;
-
+  
   const bottomX = a.bottom.x;
   const bottomY = a.bottom.y;
 
@@ -106,6 +111,7 @@ function checkTopHalf(a, b) {
     (calculateArea(leftX, leftY, bPoints) === AreaOfB) ||
     (calculateArea(topX, topY, bPoints) === AreaOfB) ||
     (calculateArea(rightX, rightY, bPoints) === AreaOfB) ||
+    (calculateArea(topX, topY, bPoints) === AreaOfB) ||
     (calculateArea(bottomX, bottomY, bPoints) === AreaOfB)
   ) {
     return true;
@@ -114,12 +120,15 @@ function checkTopHalf(a, b) {
   return false;
 }
 
+// check if any corner of a is touching the bottom half of b
 function checkBottomHalf(a, b) {
 
   const x1 = b.left.x;
   const y1 = b.left.y;
+
   const x2 = b.right.x;
   const y2 = b.right.y;
+
   const x3 = b.bottom.x;
   const y3 = b.bottom.y;
 
@@ -142,6 +151,83 @@ function checkBottomHalf(a, b) {
     (calculateArea(leftX, leftY, bPoints) === AreaOfB) ||
     (calculateArea(topX, topY, bPoints) === AreaOfB) ||
     (calculateArea(rightX, rightY, bPoints) === AreaOfB) ||
+    (calculateArea(topX, topY, bPoints) === AreaOfB) ||
+    (calculateArea(bottomX, bottomY, bPoints) === AreaOfB)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function checkLeftHalf(a, b) {
+  const x1 = b.left.x;
+  const y1 = b.left.y;
+
+  const x2 = b.top.x;
+  const y2 = b.top.y;
+
+  const x3 = b.bottom.x;
+  const y3 = b.bottom.y;
+
+  const AreaOfB = Math.abs( (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1) );
+
+  const leftX = a.left.x;
+  const leftY = a.left.y;
+
+  const topX = a.top.x;
+  const topY = a.top.y;
+
+  const rightX = a.right.x;
+  const rightY = a.right.y;
+
+  const bottomX = a.bottom.x;
+  const bottomY = a.bottom.y;
+
+  const bPoints = { x1, y1, x2, y2, x3, y3 };
+  if (
+    (calculateArea(leftX, leftY, bPoints) === AreaOfB) ||
+    (calculateArea(topX, topY, bPoints) === AreaOfB) ||
+    (calculateArea(rightX, rightY, bPoints) === AreaOfB) ||
+    (calculateArea(topX, topY, bPoints) === AreaOfB) ||
+    (calculateArea(bottomX, bottomY, bPoints) === AreaOfB)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function checkRightHalf(a, b) {
+  const x1 = b.top.x;
+  const y1 = b.top.y;
+
+  const x2 = b.right.x;
+  const y2 = b.right.y;
+
+  const x3 = b.bottom.x;
+  const y3 = b.bottom.y;
+
+  const AreaOfB = Math.abs( (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1) );
+
+  const leftX = a.left.x;
+  const leftY = a.left.y;
+
+  const topX = a.top.x;
+  const topY = a.top.y;
+
+  const rightX = a.right.x;
+  const rightY = a.right.y;
+
+  const bottomX = a.bottom.x;
+  const bottomY = a.bottom.y;
+
+  const bPoints = { x1, y1, x2, y2, x3, y3 };
+  if (
+    (calculateArea(leftX, leftY, bPoints) === AreaOfB) ||
+    (calculateArea(topX, topY, bPoints) === AreaOfB) ||
+    (calculateArea(rightX, rightY, bPoints) === AreaOfB) ||
+    (calculateArea(topX, topY, bPoints) === AreaOfB) ||
     (calculateArea(bottomX, bottomY, bPoints) === AreaOfB)
   ) {
     return true;
@@ -151,11 +237,34 @@ function checkBottomHalf(a, b) {
 }
 
 export function collisionCheck(a, b) {
-  const planeA = getCorners(a);
+  let collision = false;
+
   const planeB = getCorners(b);
 
-  if (checkTopHalf(planeA, planeB) || checkBottomHalf(planeA, planeB)) return true;
+  for(let obstruction of a) {
+    if (obstruction === null) continue;
 
+    const planeA = getCorners(obstruction);
+
+    if (
+      checkTopHalf(planeA, planeB) || checkBottomHalf(planeA, planeB) || checkTopHalf(planeB, planeA) || checkBottomHalf(planeB, planeA) ||
+      checkLeftHalf(planeA, planeB) || checkRightHalf(planeA, planeB) || checkLeftHalf(planeB, planeA) || checkRightHalf(planeB, planeA)
+    ) {
+      console.log({planeA, obstruction, planeB, b});
+      collision = true;
+      break;
+    }  
+  }
+
+  console.log(collision);
+  return collision;
+}
+
+export function testCollisionCheck(a, b) {
+  const planeA = getCorners(a);
+  const planeB = getCorners(b);
+  if (checkTopHalf(planeA, planeB) || checkBottomHalf(planeA, planeB)) {      console.log({planeA, a, planeB, b});
+  return true};
   return false;
 }
 
@@ -165,12 +274,9 @@ export function collisionCheck(a, b) {
   2) Do not fit a big plane and only fit F-22's.
 */
 export function hangarAlgorithm(planeCount, planes, hangars) {
-  const c17Count = planeCount['C-17'];
-  const kc135Count = planeCount['KC-135'];
-  const f22Count = planeCount['F-22'];
 
   // check if there is a plane
-  if (c17Count === 0 && kc135Count === 0 && f22Count === 0) {
+  if (planeCount['C-17'] === 0 && planeCount['KC-135'] === 0 && planeCount['F-22'] === 0) {
     swal('Error', 'There are no planes to be added to the hangar', 'error');
     return;
   }
@@ -181,45 +287,62 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
   for (const [id, hangar] of hangarArray) {
 
     // if there are no planes left then leave
-    if (c17Count === 0 && kc135Count === 0 && f22Count === 0) break;
+    if (planeCount['C-17'] === 0 && planeCount['KC-135'] === 0 && planeCount['F-22'] === 0) break;
 
     const obstructionList = [];
-    hangar.planes.forEach(node => { if(node.name === "obstruction") return obstructionList.push(node)})
-
-    console.log(obstructionList);
+    hangar.planes.forEach(node => obstructionList.push(node));
 
     let bigPlane = null;
 
     // check if there are big planes
       // if there are then put them in the center of the plane
-    if (c17Count > 0 || kc135Count > 0) {
-      // take the first big plane on the list
-      bigPlane = _.find(planes.pending, ['type', 'C-17']) || _.find(planes.pending, ['type', 'KC-135']);
+    if (planeCount['C-17'] > 0 || planeCount['KC-135'] > 0) {
 
-      // check if the big plane can fit in the hangar
-      if (bigPlane.width < hangar.width && bigPlane.height < hangar.width) {
+      let checkBigPlane = _.find(obstructionList, obstruction => obstruction.type === 'C-17' || obstruction.type === 'KC-135');
 
-        // get the center of the hangar and place the plane there
-        bigPlane.offsetX = hangar.width / 2;
-        bigPlane.offsetY = hangar.height / 2;
-    
-        // add the plane to added planes list
-        planes.added[bigPlane.id] = bigPlane;
-    
-        // add the plane to the hangar
-        hangar.planes.push(bigPlane);
-    
-        // remove the plane from the pending list
-        delete planes.pending[bigPlane.id];
-        // decrease plane count
-        planeCount[bigPlane.type] -= 1;
+      if (checkBigPlane) {
+        // if there is already a big plane in the hangar then dont put a big plane
+        bigPlane = checkBigPlane;
+
       } else {
         
-        bigPlane = null;
+        // take the first big plane on the list
+        for(let id of Object.keys(planes.pending)) {
+
+          const plane = planes.pending[id];
+
+          // get the first big plane that fits into the hangar
+          if ((plane.type === "C-17" || plane.type === "KC-135") && plane.width < hangar.width && plane.height < hangar.width) {
+            bigPlane = plane;
+
+            // get the center of the hangar and place the plane there
+            bigPlane.offsetX = hangar.width / 2;
+            bigPlane.offsetY = hangar.height / 2;
+        
+            // add the plane to added planes list
+            planes.added[bigPlane.id] = bigPlane;
+        
+            // add the plane to the hangar
+            hangar.planes.push(bigPlane);
+
+            // add the plane to the obstruction list
+            obstructionList.push(bigPlane);
+            console.log(obstructionList);
+
+            // remove the plane from the pending list
+            delete planes.pending[id];
+
+            // decrease plane count
+            planeCount[bigPlane.type] -= 1;
+            break;
+          }
+        }
       }
     }
-  
-  
+    
+    console.log(obstructionList);
+    console.log(bigPlane);
+
     // returns [ [ key, object], ... ]
     const planeArray = Object.entries(planes.pending);
   
@@ -253,32 +376,37 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
         currentX = startX;
       }
   
-      // check to see if there is a big plane
-      if (bigPlane !== null) {
-        // check if the corner would touch the big plane
-          // if it will then go to the right
-        const testPlane = {...plane};
-        testPlane.offsetX = currentX;
-        testPlane.offsetY = currentY;
-  
-        while(collisionCheck(bigPlane, testPlane) || collisionCheck(testPlane, bigPlane)) {
-          currentX += ((width/2) + box);
-  
-          if ((currentX + (width/2)) > hangar.width) {
-            currentY -= (height + box);
-            testPlane.offsetY  = currentY;
-  
-            currentX = startX;  
-          };
-  
-          testPlane.offsetX = currentX;
-        }
-      }
-
-      // check to see if there are any obstructions
+      // check to see if there are anything inside the hangar
       if (obstructionList.length > 0) {
 
-        
+        const testPlane = {...plane};
+
+        testPlane.offsetX = currentX;
+        testPlane.offsetY = currentY;
+
+        let testCurrentX = currentX;
+        let testCurrentY = currentY;
+
+        // eslint-disable-next-line no-loop-func
+        while(collisionCheck(obstructionList, testPlane)) {
+
+          testCurrentX += ((width/2) + box);
+  
+          if ((testCurrentX + (width/2)) > hangar.width) {
+            testCurrentY -= (height + box);
+            testPlane.offsetY  = testCurrentY;
+  
+            testCurrentX = startX;  
+          };
+  
+          testPlane.offsetX = testCurrentX;
+
+          console.log("------------TEST PLANE-------------------")
+          console.log(testPlane);
+        }
+
+        currentX = testCurrentX;
+        currentY = testCurrentY;
       }
   
       // set the position of the plane

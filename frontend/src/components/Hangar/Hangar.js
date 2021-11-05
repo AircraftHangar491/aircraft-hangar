@@ -22,7 +22,7 @@ import {
   DataManager,
 } from '@syncfusion/ej2-data';
 import _ from 'lodash';
-import { collisionCheck } from "./Hangar.utils";
+import { collisionCheck, testCollisionCheck } from "./Hangar.utils";
 import { hangarInfo, obstructionInfo, updateHangarInfo } from "../../utils/hangarInfo";
 import swal from "sweetalert";
 
@@ -38,6 +38,8 @@ const Hangar = (
     setHangarCount,
     planes,
     setPlanes,
+    planeCount,
+    setPlaneCount,
   }) => {
 
   const [addHangarsIsOpen, setAddHangarsIsOpen] = useState(false);
@@ -142,6 +144,10 @@ const Hangar = (
     
     delete planes.added[selectedPlane];
 
+    const currentCount = {...planeCount};
+    currentCount[currentPlanes.pending[selectedPlane].type] += 1;
+
+    setPlaneCount({...currentCount});
     setPlanes(currentPlanes);
     setSelectedPlane(null);
   }
@@ -206,7 +212,6 @@ const Hangar = (
 
   const checkOverlap = (changedPlane) => {
     const currentPlanes = [...hangars[currentHangar].planes];
-
     for (const index in currentPlanes) {
       // skip if current[index] is the same as the plane we just moved
       if (currentPlanes[index].id === changedPlane.id) {
@@ -215,11 +220,11 @@ const Hangar = (
         
       // check smaller plane if the moved plane is a big plane
       if (changedPlane.type === 'C-17') {
-        if (collisionCheck(currentPlanes[index], changedPlane)) {
+        if (testCollisionCheck(currentPlanes[index], changedPlane)) {
           console.log('Touching!');
         }
       } else {
-        if (collisionCheck(changedPlane, currentPlanes[index])) {
+        if (testCollisionCheck(changedPlane, currentPlanes[index])) {
           console.log('Touching!');
         }
       }
