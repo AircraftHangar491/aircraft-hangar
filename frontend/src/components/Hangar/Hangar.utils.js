@@ -37,8 +37,7 @@ function getCorners(plane) {
       x: (planeX + (planeWidth / 2)),
       y: planeY
     };
-    console.log(plane);
-    console.log({ top, bottom, left, right });
+
   } else {
     // get obstruction corners
     // imagine as if a square was rotated clockwise to look like a diamond
@@ -250,21 +249,18 @@ export function collisionCheck(a, b) {
       checkTopHalf(planeA, planeB) || checkBottomHalf(planeA, planeB) || checkTopHalf(planeB, planeA) || checkBottomHalf(planeB, planeA) ||
       checkLeftHalf(planeA, planeB) || checkRightHalf(planeA, planeB) || checkLeftHalf(planeB, planeA) || checkRightHalf(planeB, planeA)
     ) {
-      console.log({planeA, obstruction, planeB, b});
       collision = true;
       break;
     }  
   }
 
-  console.log(collision);
   return collision;
 }
 
 export function testCollisionCheck(a, b) {
   const planeA = getCorners(a);
   const planeB = getCorners(b);
-  if (checkTopHalf(planeA, planeB) || checkBottomHalf(planeA, planeB)) {      console.log({planeA, a, planeB, b});
-  return true};
+  if (checkTopHalf(planeA, planeB) || checkBottomHalf(planeA, planeB) || checkLeftHalf(planeA, planeB) || checkRightHalf(planeA, planeB)) return true;
   return false;
 }
 
@@ -327,7 +323,6 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
 
             // add the plane to the obstruction list
             obstructionList.push(bigPlane);
-            console.log(obstructionList);
 
             // remove the plane from the pending list
             delete planes.pending[id];
@@ -339,9 +334,6 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
         }
       }
     }
-    
-    console.log(obstructionList);
-    console.log(bigPlane);
 
     // returns [ [ key, object], ... ]
     const planeArray = Object.entries(planes.pending);
@@ -349,16 +341,25 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
     // put a box length between the wall and the plane
     const box = 10;
   
+    // used for the initialization
+    let start = true;
+
     // used to guide the algorithm for each row
-    let startY = 0;
-    let startX = 0;
-  
+
+     // use this if the row number is odd
+    let startYOdd = 0;
+
+    // otherwise use this if the row number is even
+    let startXOdd = 0;
+    let startXEven = 0; 
+
     // used to place the planes after the initial plane on a row
     let currentX = 0;
     let currentY = 0;
   
     // keep track of row number
     let row = 1;
+    let collisionOutOfBounds = false;
 
     // loop through the planes 
     for( const [id, plane] of planeArray)  {
@@ -368,12 +369,16 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
   
       const { width, height } = plane;
   
-      if (startY === 0 && startX === 0) {
-        startY = hangar.height - ((height/2) + box);
-        startX = (width/2) + box;
-  
-        currentY = startY;
-        currentX = startX;
+      if (start === true) {
+        startYOdd = hangar.height - ((height/2) + box);
+
+        startXOdd = (width/2) + box;
+        startXEven = width + box;
+        
+        currentY = startYOdd;
+        currentX = startXOdd;
+
+        start = false;
       }
   
       // check to see if there are anything inside the hangar
@@ -387,27 +392,42 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
         let testCurrentX = currentX;
         let testCurrentY = currentY;
 
+
         // eslint-disable-next-line no-loop-func
         while(collisionCheck(obstructionList, testPlane)) {
 
           testCurrentX += ((width/2) + box);
   
-          if ((testCurrentX + (width/2)) > hangar.width) {
-            testCurrentY -= (height + box);
+          // check if we cant go to the right anymore
+          if ((testCurrentX + width/2) > hangar.width) {
+            row += 1;
+
+            if (row % 2 === 0) {
+              testCurrentX = startXEven;
+            } else {
+              testCurrentX = startXOdd;
+            }
+
+            testCurrentY -= (height/2 + box);
+
+            // check if we reached the the top of the hangar
+             // if so break out of the this and the outer loop
+            if ((testCurrentY - (height/2)) < 0) {
+              collisionOutOfBounds = true;
+              break;
+            } 
+
             testPlane.offsetY  = testCurrentY;
-  
-            testCurrentX = startX;  
           };
   
           testPlane.offsetX = testCurrentX;
-
-          console.log("------------TEST PLANE-------------------")
-          console.log(testPlane);
         }
 
         currentX = testCurrentX;
         currentY = testCurrentY;
       }
+
+      if (collisionOutOfBounds === true) break;
   
       // set the position of the plane
       plane.offsetX = currentX;
@@ -418,7 +438,10 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
   
       // add the plane to the hangar
       hangar.planes.push(plane);
-  
+
+      // add the plane to the obstruction list
+      obstructionList.push(plane);
+
       // remove the plane from the pending list
       delete planes.pending[id];
   
@@ -429,12 +452,20 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
   
       // check if you reached the end of the row
       if ( (currentX + (width/2)) > hangar.width) {
-        currentX = startX;
-        currentY -= (height + box);
+        row += 1;
+
+        if (row % 2 === 0) {
+          currentX = startXEven;
+        } else {
+          currentX = startXOdd;
+        }
+
+        currentY -= (height/2 + box);
       }
   
       // check if the top corner of the plane is outside the hangar
       if ((currentY - (height/2)) < 0) {
+
         break;
       } 
     }

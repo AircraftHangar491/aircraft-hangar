@@ -219,14 +219,9 @@ const Hangar = (
       }
         
       // check smaller plane if the moved plane is a big plane
-      if (changedPlane.type === 'C-17') {
-        if (testCollisionCheck(currentPlanes[index], changedPlane)) {
+      if (testCollisionCheck(changedPlane, currentPlanes[index]) || testCollisionCheck(currentPlanes[index], changedPlane)) {
           console.log('Touching!');
-        }
-      } else {
-        if (testCollisionCheck(changedPlane, currentPlanes[index])) {
-          console.log('Touching!');
-        }
+
       }
     }
   }
