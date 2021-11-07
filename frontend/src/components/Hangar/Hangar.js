@@ -22,8 +22,8 @@ import {
   DataManager,
 } from '@syncfusion/ej2-data';
 import _ from 'lodash';
-import { collisionCheck } from "./Hangar.utils";
-import { hangarInfo, updateHangarInfo } from "../../utils/hangarInfo";
+import { collisionCheck, testCollisionCheck } from "./Hangar.utils";
+import { hangarInfo, obstructionInfo, updateHangarInfo } from "../../utils/hangarInfo";
 import swal from "sweetalert";
 
 let diagramInstance;
@@ -38,6 +38,8 @@ const Hangar = (
     setHangarCount,
     planes,
     setPlanes,
+    planeCount,
+    setPlaneCount,
   }) => {
 
   const [addHangarsIsOpen, setAddHangarsIsOpen] = useState(false);
@@ -120,6 +122,7 @@ const Hangar = (
 
   const removePlane = () => {    
     if (!selectedPlane) return swal('Error', 'Choose a plane.', 'error');
+    if (hangars[currentHangar].planes.find(plane => plane.id === selectedPlane).name === "obstruction") return swal('Error', 'Cannot return obstruction to Aircraft list.', 'error');
 
     const hangarPlanes = [...hangars[currentHangar].planes];
     
@@ -141,7 +144,12 @@ const Hangar = (
     
     delete planes.added[selectedPlane];
 
+    const currentCount = {...planeCount};
+    currentCount[currentPlanes.pending[selectedPlane].type] += 1;
+
+    setPlaneCount({...currentCount});
     setPlanes(currentPlanes);
+    setSelectedPlane(null);
   }
 
   const deletePlane = () => {
@@ -160,6 +168,34 @@ const Hangar = (
         planes: hangarPlanes
       }
     });
+
+    const addedPlanes = {...planes.added};
+    delete addedPlanes[selectedPlane];
+
+    setPlanes({
+      ...planes,
+      added: {...addedPlanes}
+    });
+    setSelectedPlane(null);
+  }
+
+  const addObstructionNode = () => {
+    const currentNodes = [...hangars[currentHangar].planes];
+
+    const hangarWidth = hangars[currentHangar].width;
+    const hangarHeight = hangars[currentHangar].height;
+    
+    const newObstruction = obstructionInfo(hangarWidth, hangarHeight)
+
+    currentNodes.push(newObstruction);
+
+    setHangars({
+      ...hangars,
+      [currentHangar]: {
+        ...hangars[currentHangar],
+        planes: [...currentNodes]
+      }
+    })
   }
 
   // ------------ hangar functions --------------------------------
@@ -167,7 +203,6 @@ const Hangar = (
   const onClickPlane = (e) => { 
     const { actualObject } = e;
 
-    console.log(actualObject);
     if (actualObject) {
       return setSelectedPlane(actualObject.properties.id);
     }
@@ -177,7 +212,6 @@ const Hangar = (
 
   const checkOverlap = (changedPlane) => {
     const currentPlanes = [...hangars[currentHangar].planes];
-
     for (const index in currentPlanes) {
       // skip if current[index] is the same as the plane we just moved
       if (currentPlanes[index].id === changedPlane.id) {
@@ -185,14 +219,9 @@ const Hangar = (
       }
         
       // check smaller plane if the moved plane is a big plane
-      if (changedPlane.type === "C-17") {
-        if (collisionCheck(currentPlanes[index], changedPlane)) {
-          console.log("Touching!");
-        }
-      } else {
-        if (collisionCheck(changedPlane, currentPlanes[index])) {
-          console.log("Touching!");
-        }
+      if (testCollisionCheck(changedPlane, currentPlanes[index]) || testCollisionCheck(currentPlanes[index], changedPlane)) {
+          console.log('Touching!');
+
       }
     }
   }
@@ -217,6 +246,7 @@ const Hangar = (
         changedPlaneId = nodes[0].properties.id;
       }
 
+      
       const hangarPlanes = [...hangars[currentHangar].planes];
       const currentPlane = hangarPlanes.find(plane => plane.id === changedPlaneId);
 
@@ -239,10 +269,37 @@ const Hangar = (
       checkOverlap(currentPlane);
     }
   }
+
+  const onSizeChange = (e) => {
+    if (e.state === "Completed" && e.source.properties.nodes[0].properties.data.name === "obstruction") {
+      console.log(e)
+      const selectedObstruction = e.source.properties.nodes[0].properties.data.id;
+
+      const currentNodes = [...hangars[currentHangar].planes];
+      const hangarObstruction = currentNodes.find(node => node.id === selectedObstruction);
+
+      hangarObstruction.offsetX = e.newValue.offsetX;
+      hangarObstruction.offsetY = e.newValue.offsetY;
+
+      hangarObstruction.width = e.newValue.width;
+      hangarObstruction.height = e.newValue.height;
+
+      const index = currentNodes.findIndex(node => node.id === selectedObstruction);
+      currentNodes[index] = hangarObstruction;
+
+      setHangars({
+        ...hangars,
+        [currentHangar]: {
+          ...hangars[currentHangar],
+          planes: currentNodes
+        }
+      })
+    }
+  }
   
   return (
     <div>
-      <Nav>
+      <Nav style={{ marginBottom: "1rem" }}>
         <Nav.Item>
           <h4>
             Hangars
@@ -336,9 +393,13 @@ const Hangar = (
                       </Form>
                     </PopoverBody>
                 </Popover>
-
+                  <Button size="sm" onClick={addObstructionNode}>Add obstruction</Button>
+                </Nav.Item>
+              </Nav>
+              <Nav>
+                <Nav.Item className="hangar-navb">
                   <Button size="sm" onClick={removePlane}>Remove plane from hangar</Button>
-                  <Button size="sm" onClick={deletePlane}>Delete plane</Button>
+                  <Button size="sm" onClick={deletePlane}>Delete</Button>
                 </Nav.Item>
               </Nav>
               <DiagramComponent
@@ -370,6 +431,10 @@ const Hangar = (
                 }}
                 click={onClickPlane}
                 positionChange={onPositionChange}
+                sizeChange={onSizeChange}
+                pageSettings={{
+                  boundaryConstraints: 'Diagram',
+                }}
               >
                 <Inject services = {[BpmnDiagrams, DataBinding]}/>
               </DiagramComponent>
