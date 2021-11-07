@@ -290,6 +290,12 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
 
     let bigPlane = null;
 
+    // put a box length between the wall and the plane
+    const box = 10;
+    
+    let collisionOutOfBounds = false;
+    console.log("HELLO");
+
     // check if there are big planes
       // if there are then put them in the center of the plane
     if (planeCount['C-17'] > 0 || planeCount['KC-135'] > 0) {
@@ -301,7 +307,8 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
         bigPlane = checkBigPlane;
 
       } else {
-        
+        console.log("HELLO");
+
         // take the first big plane on the list
         for(let id of Object.keys(planes.pending)) {
 
@@ -315,6 +322,27 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
             bigPlane.offsetX = hangar.width / 2;
             bigPlane.offsetY = hangar.height / 2;
         
+            let testOffsetY = bigPlane.offsetY;
+
+            while(collisionCheck(obstructionList, bigPlane)) {
+
+              testOffsetY -= (box * 2);
+      
+              // check if we reached the the top of the hangar
+                // if so break out of the this and the outer loop
+              if ((testOffsetY - (bigPlane.height/2)) < 0) {
+                console.log(bigPlane);
+                console.log(testOffsetY);
+
+                collisionOutOfBounds = true;
+                break;
+              } 
+  
+              bigPlane.offsetY  = testOffsetY;
+            }
+
+            if (collisionOutOfBounds === true) {console.log("HELLOO"); collisionOutOfBounds = false; continue;};
+
             // add the plane to added planes list
             planes.added[bigPlane.id] = bigPlane;
         
@@ -338,8 +366,7 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
     // returns [ [ key, object], ... ]
     const planeArray = Object.entries(planes.pending);
   
-    // put a box length between the wall and the plane
-    const box = 10;
+
   
     // used for the initialization
     let start = true;
@@ -359,7 +386,8 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
   
     // keep track of row number
     let row = 1;
-    let collisionOutOfBounds = false;
+    
+    collisionOutOfBounds = false;
 
     // loop through the planes 
     for( const [id, plane] of planeArray)  {
