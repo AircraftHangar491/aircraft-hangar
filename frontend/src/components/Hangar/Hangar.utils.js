@@ -236,7 +236,6 @@ function checkRightHalf(a, b) {
 }
 
 export function collisionCheck(a, b) {
-  let collision = false;
 
   const planeB = getCorners(b);
 
@@ -249,12 +248,11 @@ export function collisionCheck(a, b) {
       checkTopHalf(planeA, planeB) || checkBottomHalf(planeA, planeB) || checkTopHalf(planeB, planeA) || checkBottomHalf(planeB, planeA) ||
       checkLeftHalf(planeA, planeB) || checkRightHalf(planeA, planeB) || checkLeftHalf(planeB, planeA) || checkRightHalf(planeB, planeA)
     ) {
-      collision = true;
-      break;
+      return true;
     }  
   }
 
-  return collision;
+  return false;
 }
 
 export function testCollisionCheck(a, b) {
