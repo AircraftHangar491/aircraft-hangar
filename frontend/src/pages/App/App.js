@@ -14,7 +14,7 @@ const App = () => {
   const [planes, setPlanes] = useLocalStorage('planes', { added: {}, pending: {} });
 
   // count of all plane types
-  const [planeCount, setPlaneCount] = useLocalStorage('planeCount', { "C-17": 0, "KC-135": 0, "F-22": 0 });
+  const [planeCount, setPlaneCount] = useLocalStorage('planeCount', {});
 
   return (
     <Router>

@@ -499,4 +499,3 @@ export function hangarAlgorithm(planeCount, planes, hangars) {
 
   return { newPlaneCount: planeCount, newPlanes: planes, newHangars: hangars };
 }
-

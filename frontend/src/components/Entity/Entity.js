@@ -42,19 +42,16 @@ const Entity = (
   const [nickname, setNickname] = useState("");
   const [planeAmount, setPlaneAmount] = useState("");
 
-  const onShowMore = (id, e)  => {
-    const list = {...planes.pending};
-    
-    console.log(list);
-
-    const current = list[id];
-    current.isOpen = !current.isOpen;
-
-    list[id] = current;
-
-    setPlanes({
-      ...planes,
-      pending: list,
+  // Event when user clicks on the plane in the aircraft list
+  const onShowMore = (key, e)  => {
+    setPlaneCount(prevState => {
+      return {
+        ...prevState,
+        [key]: {
+          ...prevState[key],
+          isOpen: !prevState[key].isOpen
+        }
+      }
     })
   }
 
@@ -72,12 +69,32 @@ const Entity = (
   const onAddAirplane = (e) => { 
 
     const amount = planeAmount === "" ? 1 : parseInt(planeAmount);
-    setPlaneCount(prevState => {
-      return {
-        ...prevState,
-        [planeType]: planeCount[planeType] + amount,
-      }
-    });
+
+    // set plane count to trigger useEffect to add the plane.
+    // check if the plane type already exists
+    if (planeType in planeCount) {
+
+      setPlaneCount(prevState => {
+        return {
+          ...prevState,
+          [planeType]: {
+            ...prevState[planeType],
+            count: prevState[planeType].count + amount
+          }
+        }
+      });
+    } else {
+      setPlaneCount(prevState => {
+        return {
+          ...prevState,
+          [planeType]: {
+            isOpen: false,
+            count: amount
+          }
+        }
+      });
+    }
+    
 
     // close popup
     setAddPlanesIsOpen(!addPlanesIsOpen);
@@ -121,6 +138,7 @@ const Entity = (
       // reset form states
       setPlaneType("");
       setNickname("");
+      setPlaneAmount("")
     }
   }, [planeCount]);
 
@@ -261,7 +279,7 @@ const Entity = (
                     id="planeAmount"
                     placeholder="1"
                     onChange={e => onPlaneAmountSet(e)}
-                    />
+                  />
                 <Button onClick={e => onAddAirplane(e)}>Submit</Button>             
               </Form>
             </PopoverBody>
@@ -269,32 +287,12 @@ const Entity = (
         </CardHeader>
         <CardBody className="scroll">
           <Form className="container">
-            {Object.entries(planes.pending).map((plane) => {
+            {Object.entries(planeCount).map((plane) => {
               const [key, value] = plane;
               return (
                 <div className="plane-list" key={key}>
-                  <Button className="block" id={key} onClick={e => onShowMore(key, e)}>{value.type} {`(${value.name})`}</Button>
+                  <Button className="block" id={key} onClick={e => onShowMore(key, e)}>{key} {`(${value.count})`}</Button>
                   <Collapse isOpen={value.isOpen}>
-                    <Label>Name</Label>
-                    <Input
-                      type="name"
-                      name="name"
-                      id="planeName"
-                      value={value.name}
-                      onChange={e => onNicknameUpdate(e, key, value.type)}
-                    />
-                    <Label>Aircraft Type</Label>
-                    <Input
-                      type="select"
-                      name="select"
-                      id="planeType"
-                      value={value.type}
-                      onChange={e => onPlaneTypeUpdate(e, key, value.name)}
-                    >
-                      <option>C-17</option>
-                      <option>KC-135</option>
-                      <option>F-22</option>
-                    </Input>
                     <Button onClick={e => onAddToHangar(e, key)}>Add to hangar</Button>
                   </Collapse>
                 </div>
